@@ -2,10 +2,12 @@ Kitsune is a programming language based on MIT's Scratch -- a visual educational
 
 Kitsune is implemented in C# with WinForms. To run it simply clone the repository, open the code in Visual Studio, and run the project.
 
+Released under the Apache 2.0 license.
+
 Currently implemented:
 * Turtle graphics
 * Some basic control flow (repeat, repeat forever, wait...)
-* Most typical graphical editing actions (move things around, snap to join, drag to separate)
+* Typical graphical editing actions (move things around, snap to join, drag to separate)
 * A cute fox sprite/mascot :)
 
 Needs to be done
@@ -16,3 +18,4 @@ Needs to be done
 The implementation now is in a state where a user can toy with simple geometric programs.
 
 Unlike Scratch, which seems to interpret the program as an AST, Kitsune compiles the graphical scripts to an in-memory intermediate representation that's then run by a simple VM. This IR-based design might be useful in later stages for compiling programs to other platforms, like the JVM or JavaScript.
+
