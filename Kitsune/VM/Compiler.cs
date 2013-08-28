@@ -89,6 +89,11 @@ namespace Kitsune.VM
                 CompileWaitBlock(b, instructions, labels);
                 return;
             }
+            else if (b.Text == "stop script")
+            {
+                CompileStopScriptBlock(b, instructions, labels);
+                return;
+            }
             
             DataType[] argTypes = blockSpace.blockInfos[b.Text].ArgTypes;
             for (int i = argTypes.Length-1; i >=0 ; --i)
@@ -147,6 +152,11 @@ namespace Kitsune.VM
             instructions.Add(new Label(vm, label1));
             CompileExpression(b.Args[0], DataType.Script, instructions, labels);
             instructions.Add(new Jump(vm, label1));
+        }
+
+        private void CompileStopScriptBlock(InvokationBlock b, List<Instruction> instructions, Dictionary<string, int> labels)
+        {
+            instructions.Add(new Stop(vm));
         }
 
         private Instruction GenerateInvokation(string p, int arity)
