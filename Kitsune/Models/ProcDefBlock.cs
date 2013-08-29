@@ -11,9 +11,9 @@ namespace Kitsune
     [Serializable]
     public class ProcDefBlock : IBlock
     {
-        public event ProcDefBitChangedEvent FormalParamChanged;
-        public event ProcDefBitAddedEvent FormalParamAdded;
-        public event ProcDefBodyChangedEvent BodyChanged;
+        [field: NonSerialized] public event ProcDefBitChangedEvent FormalParamChanged;
+        [field: NonSerialized] public event ProcDefBitAddedEvent FormalParamAdded;
+        [field: NonSerialized] public event ProcDefBodyChangedEvent BodyChanged;
 
         public List<IProcDefBit> Bits = new List<IProcDefBit>();
         List<int> formalParamPositions = new List<int>();
