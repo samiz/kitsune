@@ -149,6 +149,10 @@ namespace Kitsune
                     return BlockAttributes.Cap;
                 return BlockAttributes.Stack;
             }
+            else if (block is ProcDefBlock)
+            {
+                return BlockAttributes.Hat;
+            }
             throw new NotImplementedException();
         }
         internal DataType Typeof(IBlock block)

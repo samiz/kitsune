@@ -11,6 +11,8 @@ namespace Kitsune
     {
         StackBlockImgParts sb_parts;
         StackBlockImgParts fib_parts;
+        StackBlockImgParts pdb_parts;
+        Nine varb_parts;
         StackBlockImgParts capb_parts;
         StackBlockImgParts hatb_parts;
         CBlockImgParts cb_parts;
@@ -45,6 +47,8 @@ namespace Kitsune
         {
             sb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("stack_blue_small.bmp"));
             fib_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("function_green_small.bmp"));
+            pdb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("procdef_small.bmp"));
+            varb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("var_purple_small.bmp"));
             hatb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("hat_small.bmp"));
             capb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("cap_small.bmp"));
             
@@ -76,19 +80,80 @@ namespace Kitsune
                 blockViews[block] = ret;
                 return ret;
             }
-
-            if (!(block is InvokationBlock))
+            if (block is VarAccessBlock || block is VarDefBlock)
+            {
+                IBlockView ret = new VariableView((IVarBlock)block, varb_parts, textMetrics, textFont);
+                blockViews[block] = ret;
+                return ret;
+            }
+            if (block is TextBlock)
             {
                 IBlockView ret = new TextView((TextBlock) block, ib_parts, textMetrics, textFont);
                 blockViews[block] = ret;
                 return ret;
             }
+            if (block is InvokationBlock)
+            {
+                InvokationBlock b = (InvokationBlock)block;
+                BlockAttributes attr = blockSpace.AttributeOf(b);
+                IBlockView r = ViewFromInvokationBlock(b, attr);
+                blockViews[block] = r;
+                return r;
+            }
+            if (block is ProcDefBlock)
+            {
+                ProcDefBlock b = (ProcDefBlock) block;
+                BlockAttributes attr = blockSpace.AttributeOf(b);
+                IBlockView r = ViewFromProcDefBlock(b);
+                blockViews[block] = r;
+                return r;
+            }
+            throw new ArgumentException();
+        }
 
-            InvokationBlock b = (InvokationBlock)block;
-            BlockAttributes attr = blockSpace.AttributeOf(b);
-            IBlockView r = ViewFromInvokationBlock(b, attr);
-            blockViews[block] = r;
-            return r;
+        private IBlockView ViewFromProcDefBlock(ProcDefBlock b)
+        {
+            List<IBlockView> subContent = new List<IBlockView>();
+            int i = 0;
+            int n = b.Bits.Count;
+
+            BitArray trueArgs = new BitArray(n);
+            DataType[] argTypes = new DataType[n];
+            // slow: Repeats instanceof test twice for all bits; once for height and once to add to subContent
+            int height = b.Bits.Max(bb => ArgBitTextHeight(bb));
+            foreach (IProcDefBit bit in b.Bits)
+            {
+                if (bit is VarDefBlock)
+                {
+                    VarDefBlock vb = (VarDefBlock) bit;
+                    subContent.Add(ViewFromBlock(vb));
+                    trueArgs[i] = true;
+                    argTypes[i] = vb.Type;
+                }
+                else
+                {
+                    subContent.Add(new LabelView(MakeTextBitBitmap(((ProcDefTextBit)bit).Text, height)));
+                    argTypes[i] = DataType.Invalid;
+                    trueArgs[i] = false;
+                }
+                ++i;
+            }
+
+            StackBlockImgParts imageParts = pdb_parts;
+            ContentView content = new ContentView(subContent.ToArray(), argTypes, trueArgs, imageParts);
+
+            IStackableBlockView body = (IStackableBlockView)ViewFromBlock(b.Body);
+            ProcDefView pdb = new ProcDefView(b, content);
+            b.FormalParamAdded += new ProcDefBitAddedEvent(ProcDefBlock_FormalParamAdded);
+            b.FormalParamChanged += new ProcDefBitChangedEvent(ProcDefBlock_FormalParamChanged);
+            return pdb;
+        }
+
+        private int ArgBitTextHeight(IProcDefBit bb)
+        {
+            if (!(bb is ProcDefTextBit))
+                return 0;
+            return (int) textMetrics.MeasureString((bb as ProcDefTextBit).Text, textFont).Height;
         }
 
         public IBlockView ViewFromInvokationBlock(InvokationBlock b, BlockAttributes attribute)
@@ -214,6 +279,16 @@ namespace Kitsune
 
                 return cb;
             }
+        }
+
+        void ProcDefBlock_FormalParamChanged(object sender, int index, IProcDefBit newBit)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ProcDefBlock_FormalParamAdded(object sender, IProcDefBit newBit)
+        {
+            throw new NotImplementedException();
         }
 
         void InvokationBlock_ArgChanged(object sender, int arg, IBlock _old, IBlock _new)

@@ -10,10 +10,10 @@ namespace Kitsune
     public class ContentView : IBlockView 
     {
         public event ViewChangedEvent Changed;
-        IBlockView[] argViews;
+        List<IBlockView> argViews = new List<IBlockView>();
         BitArray trueArgs;
         List<int> argIndexes = new List<int>();
-        Bitmap[] parts;
+        List<Bitmap> parts = new List<Bitmap>();
         Bitmap _cached;
         
         bool fresh = false;
@@ -21,23 +21,18 @@ namespace Kitsune
         public IBlockView Parent { get; set; }
         public Point RelativePos { get; set; }
         NineContent abc;
-        DataType[] ArgTypes;
+        List<DataType> ArgTypes = new List<DataType>();
 
         public ContentView(IBlockView[] argViews, DataType[] argTypes, BitArray trueArgs, NineContent abc)
         {
-            this.argViews = argViews;
             this.trueArgs = trueArgs;
-            this.ArgTypes = argTypes;
-            this.parts = argViews.Select(v => v.Assemble()).ToArray();
+            this.ArgTypes.AddRange(argTypes);
             this.abc = abc;
             Changed += delegate(object sender) {};
             int i = 0;
             foreach (IBlockView v in argViews)
             {
-                if (!(v is LabelView))
-                    argIndexes.Add(i);
-                v.Changed += new ViewChangedEvent(ArgView_Changed);
-                v.Parent = this;
+                AddSubView(v, argTypes[i], i);
                 i++;
             }
             Reassemble();
@@ -45,24 +40,68 @@ namespace Kitsune
 
         public void SetArgView(int i, IBlockView v)
         {
-            IBlockView oldArgView = argViews[argIndexes[i]];
-            if (!(oldArgView.Parent == this))
-            {
-                throw new InvalidOperationException("How did the parent of my arg not be me??");
-            }
-            oldArgView.Parent = null;
-            oldArgView.Changed -= ArgView_Changed;
+            SetSubView(argIndexes[i], v);
+        }
+
+        public void SetSubView(int i, IBlockView v)
+        {
+            IBlockView oldSubView = argViews[i];
+            Detach(oldSubView);
 
             if (v.Parent != null)
             {
-                v.Changed -= ((ContentView)v.Parent).ArgView_Changed;
+                ((ContentView)v.Parent).Detach(v);
             }
-            v.Changed +=new ViewChangedEvent(ArgView_Changed);
-            v.Parent = this;
-            argViews[argIndexes[i]] = v;
-            parts[argIndexes[i]] = v.Assemble();
+
+            Attach(v);
+            argViews[i] = v;
+            parts[i] = v.Assemble();
             Reassemble();
             Changed(this);
+        }
+        public void AddSubView(IBlockView v, DataType argType)
+        {
+            AddSubView(v, argType, argViews.Count);
+        }
+        public void AddSubView(IBlockView v, DataType argType, int i)
+        {
+            if (!(v is LabelView))
+                argIndexes.Add(i);
+
+            if (v.Parent != null)
+            {
+                ((ContentView)v.Parent).Detach(v);
+            }
+            Attach(v);
+            parts.Add(v.Assemble());
+            Reassemble();
+            Changed(this);
+        }
+
+        public void RemoveSubView(int index)
+        {
+            IBlockView v = argViews[index];
+            Detach(v);
+            argViews.RemoveAt(index);
+            parts.RemoveAt(index);
+            Reassemble();
+            Changed(this);
+        }
+
+        private void Attach(IBlockView v)
+        {
+            v.Changed += new ViewChangedEvent(ArgView_Changed);
+            v.Parent = this;
+        }
+
+        private void Detach(IBlockView v)
+        {
+            if (!(v.Parent == this))
+            {
+                throw new InvalidOperationException("How did the parent of my arg not be me??");
+            }
+            v.Parent = null;
+            v.Changed -= ArgView_Changed;
         }
 
         public IBlock Model 
@@ -94,7 +133,12 @@ namespace Kitsune
 
         public void Reassemble()
         {
-            this.parts = argViews.Select(v => v.Assemble()).ToArray();
+            // Why do we recompute the parts array instead of just using it?
+            // I remember this was to fix a bug that occurred when just using 'parts'
+            // need to remember & document the exact reason
+            this.parts.Clear();
+            this.parts.AddRange(argViews.Select(v => v.Assemble()));
+
             int firstTextWidth = Math.Max(parts[0].Width, abc.MinTextWidth);
             int bmpWidth = abc.TextStart.X
                 + firstTextWidth
@@ -130,7 +174,7 @@ namespace Kitsune
 
                 p.Offset(firstTextWidth + abc.TextArgDist, 0);
 
-                for (int i = 1; i < parts.Length; ++i)
+                for (int i = 1; i < parts.Count; ++i)
                 {
                     yC = (height - this.parts[i].Height) / 2;
                     g.DrawImageUnscaled(this.parts[i], p.Offseted(0, yC));
@@ -153,7 +197,7 @@ namespace Kitsune
 
             int a = 0;
             
-            for(int i=0; i<argViews.Length; ++i)
+            for(int i=0; i<argViews.Count; ++i)
             {
                 IBlockView v = argViews[i];
                 if (!trueArgs[i])
@@ -228,7 +272,7 @@ namespace Kitsune
 
         public IBlockView ChildHasPoint(Point p, Point origin)
         {
-            for (int i = 0; i < argViews.Length; ++i)
+            for (int i = 0; i < argViews.Count; ++i)
             {
                 IBlockView v = argViews[i];
                 Point rp = v.RelativePos;

@@ -5,7 +5,6 @@ using System.Text;
 
 namespace Kitsune
 {
-    [Serializable]
     public delegate void InvokationBlockArgChangeEvent(object sender, int arg, IBlock _old, IBlock _new);
     [Serializable]
     public class InvokationBlock : IBlock

@@ -51,6 +51,12 @@
     <Compile Include="Controllers\BlockController.cs" />
     <Compile Include="Controllers\BlockViewFactory.cs" />
     <Compile Include="Controllers\Document.cs" />
+    <Compile Include="Models\IProcDefBit.cs" />
+    <Compile Include="Models\IVarBlock.cs" />
+    <Compile Include="Models\ProcDefBlock.cs" />
+    <Compile Include="Models\ProcDefTextBit.cs" />
+    <Compile Include="Models\VarAccessBlock.cs" />
+    <Compile Include="Models\VarDefBlock.cs" />
     <Compile Include="Stage\Sprite.cs" />
     <Compile Include="Stage\Stage.cs" />
     <Compile Include="Views\ArgumentPartition.cs" />
@@ -91,7 +97,9 @@
     <Compile Include="Views\LabelView.cs" />
     <Compile Include="Views\Palette.cs" />
     <Compile Include="Views\InvokationBlockView.cs" />
+    <Compile Include="Views\ProcDefView.cs" />
     <Compile Include="Views\TextView.cs" />
+    <Compile Include="Views\VariableView.cs" />
     <Compile Include="Views\ViewExtensions.cs" />
     <Compile Include="VM\Compiler.cs" />
     <Compile Include="VM\Frame.cs" />
@@ -208,6 +216,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Tools\wait.bmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\var_purple.small.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
