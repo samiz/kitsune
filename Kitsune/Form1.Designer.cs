@@ -42,12 +42,12 @@
             this.programToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.terminateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.defineNewProcToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolGreenFlag = new System.Windows.Forms.ToolStripButton();
             this.toolStop = new System.Windows.Forms.ToolStripButton();
-            this.defineNewProcToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -148,6 +148,13 @@
             this.terminateToolStripMenuItem.Text = "Terminate";
             this.terminateToolStripMenuItem.Click += new System.EventHandler(this.terminateToolStripMenuItem_Click);
             // 
+            // defineNewProcToolStripMenuItem
+            // 
+            this.defineNewProcToolStripMenuItem.Name = "defineNewProcToolStripMenuItem";
+            this.defineNewProcToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.defineNewProcToolStripMenuItem.Text = "Define new proc...";
+            this.defineNewProcToolStripMenuItem.Click += new System.EventHandler(this.defineNewProcToolStripMenuItem_Click);
+            // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.White;
@@ -206,12 +213,6 @@
             this.toolStop.Size = new System.Drawing.Size(54, 54);
             this.toolStop.Text = "toolStripButton2";
             this.toolStop.Click += new System.EventHandler(this.toolStop_Click);
-            // 
-            // defineNewProcToolStripMenuItem
-            // 
-            this.defineNewProcToolStripMenuItem.Name = "defineNewProcToolStripMenuItem";
-            this.defineNewProcToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-            this.defineNewProcToolStripMenuItem.Text = "Define new proc...";
             // 
             // Form1
             // 

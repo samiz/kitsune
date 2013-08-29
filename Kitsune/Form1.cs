@@ -467,6 +467,12 @@ namespace Kitsune
             this.Close();
         }
 
+        private void defineNewProcToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EditProcDefForm form = new EditProcDefForm(controller.NewProcDef());
+            form.ShowDialog();
+        }
+
       
     }
 }

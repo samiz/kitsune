@@ -550,6 +550,14 @@ namespace Kitsune
             return hit;
         }
 
+        public EditProcDefController NewProcDef()
+        {
+            ProcDefBlock block = new ProcDefBlock();
+            ProcDefView view = (ProcDefView) viewFactory.ViewFromBlock(block);
+            EditProcDefController controller = new EditProcDefController(view, block, viewFactory);
+            return controller;
+        }
+
         internal IBlockView ViewFromBlock(IBlock b)
         {
             return viewFactory.ViewFromBlock(b);
