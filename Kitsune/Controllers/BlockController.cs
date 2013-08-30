@@ -36,8 +36,8 @@ namespace Kitsune
         IBlockView dragged;
         TopLevelScript draggedModel;
         Point draggingOrigin;
-        TextBlock editedTextModel;
-        TextView editedTextView;
+        ITextualBlock editedTextModel;
+        ITextualView editedTextView;
         string originalEditedText;
         private TextBox editedTextBox;
         string status = "";
@@ -308,11 +308,12 @@ namespace Kitsune
                     }
                     else if (hit.Model.ParentRelationship.Type == ParentRelationshipType.Arg)
                     {
-                        if (hit.Model is TextBlock)
+                        if (hit is ITextualView)
                         {
                             // We shouldn't detach e.g a number argument from its block
                             // but we should enable the user to edit it
-                            SetEditState(hit);
+                            
+                            SetEditState((ITextualView) hit);
                             return;
                         }
                         int i = hit.Model.ParentRelationship.Index;
@@ -387,11 +388,10 @@ namespace Kitsune
             }
         }
         
-        private void SetEditState(IBlockView blockView)
+        private void SetEditState(ITextualView v)
         {
-            TextView v = (TextView) blockView;
             editedTextView = v;
-            TextBlock model = (TextBlock)v.Model;
+            ITextualBlock model = (ITextualBlock)v.Model;
             editedTextModel = model;
             originalEditedText = model.Text;
             TextBox tb = textBoxMaker();
@@ -543,19 +543,19 @@ namespace Kitsune
 
                 if (v.HasPoint(p, location))
                 {
-                    hit = v.ChildHasPoint(p, allViews[v]);
+                    hit = v.ChildHasPoint(p, location);
                     break;
                 }
             }
             return hit;
         }
 
-        public EditProcDefController NewProcDef()
+        public EditProcDefController NewProcDef(Func<TextBox> textBoxMaker)
         {
             ProcDefBlock block = new ProcDefBlock();
             block.SetBody(new BlockStack());
             ProcDefView view = (ProcDefView) viewFactory.ViewFromBlock(block);
-            EditProcDefController controller = new EditProcDefController(view, block, viewFactory);
+            EditProcDefController controller = new EditProcDefController(view, block, viewFactory, textBoxMaker);
             return controller;
         }
 

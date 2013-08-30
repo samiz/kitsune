@@ -21,20 +21,12 @@ namespace Kitsune
             this.Attributes = Attributes;
             this.ArgTypes = new List<DataType>();
             this.ArgTypes.AddRange(ArgTypes);
-            this.Args = new ArgList(this, ArgTypes);
+            this.Args = new ArgList(this);
+
             this.ParentRelationship = new ParentRelationship();
             this.OnArgChanged += delegate(object sender, int arg, IBlock _old, IBlock _new) { };
         }
-        public IBlock DeepClone()
-        {
-            InvokationBlock ret = new InvokationBlock(Text, Attributes, ArgTypes);
-            int i = 0;
-            foreach (IBlock arg in Args)
-            {
-                ret.SetArg(i, arg.DeepClone());
-            }
-            return ret;
-        }
+        
         public ParentRelationship ParentRelationship { get; set; }
 
         public void SetArg(int i, IBlock arg)
@@ -54,6 +46,17 @@ namespace Kitsune
         private void Detach(IBlock arg)
         {
             arg.ParentRelationship = new ParentRelationship();
+        }
+
+        public IBlock DeepClone()
+        {
+            InvokationBlock ret = new InvokationBlock(Text, Attributes, ArgTypes);
+            int i = 0;
+            foreach (IBlock arg in Args)
+            {
+                ret.SetArg(i, arg.DeepClone());
+            }
+            return ret;
         }
     }
 }

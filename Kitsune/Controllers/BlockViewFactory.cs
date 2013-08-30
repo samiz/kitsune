@@ -112,44 +112,58 @@ namespace Kitsune
         {
             List<IBlockView> subContent = new List<IBlockView>();
             int i = 0;
-            int n = b.Template.Args.Count;
+            int n = b.Bits.Count;
 
             BitArray trueArgs = new BitArray(n);
             DataType[] argTypes = new DataType[n];
             // slow: Repeats instanceof test twice for all bits; once for height and once to add to subContent
-            int height = b.Template.bits.Count==0?1: b.Template.bits.Max(bb => ArgBitTextHeight(bb));
-            int curArg = 0;
-            foreach (string bit in b.Template.bits)
+            int height = b.Bits.Count==0?1: b.Bits.Max(bb => ArgBitTextHeight(bb));
+
+            foreach (IProcDefBit bit in b.Bits)
             {
-                if (bit !="")
+                if (bit is VarDefBlock)
                 {
-                    VarDefBlock vb = (VarDefBlock) b.Template.Args[curArg++];
+                    VarDefBlock vb = (VarDefBlock)bit;
                     subContent.Add(ViewFromBlock(vb));
                     trueArgs[i] = true;
                     argTypes[i] = vb.Type;
                 }
                 else
                 {
-                    subContent.Add(new LabelView(MakeTextBitBitmap(bit, height)));
+                    ProcDefTextBit ptb = (ProcDefTextBit) bit;
+                    EditableLabelView ev = new EditableLabelView(
+                        MakeTextBitBitmap(ptb.Text, height),
+                        ptb);
+                    blockViews[ptb] = ev;
+                    subContent.Add(ev);
                     argTypes[i] = DataType.Invalid;
                     trueArgs[i] = false;
+                    ptb.TextChanged += new ProcDefTextBitTextChangedEvent(ProcDefTextBit_TextChanged);
+                    
                 }
                 ++i;
             }
 
-            StackBlockImgParts imageParts = pdb_parts;
-            ContentView content = new ContentView(subContent.ToArray(), argTypes, trueArgs, imageParts);
-
+            Bitmap[] defineTextView = RenderTextBits(new string[] { "define" });
+            ContentView innerContent = new ContentView(subContent.ToArray(), argTypes, trueArgs, sb_parts);
+            ContentView outerContent = new ContentView(new IBlockView[] { 
+                new LabelView(defineTextView[0]),
+                innerContent
+            }, new DataType[] { DataType.Invalid },
+                new BitArray(new bool[] { false, true }), pdb_parts);
+            
             IStackableBlockView body = (IStackableBlockView)ViewFromBlock(b.Body);
-            ProcDefView pdb = new ProcDefView(b, content, body);
+            ProcDefView pdb = new ProcDefView(b, outerContent, innerContent, body);
             b.FormalParamAdded += new ProcDefBitAddedEvent(ProcDefBlock_FormalParamAdded);
             b.FormalParamChanged += new ProcDefBitChangedEvent(ProcDefBlock_FormalParamChanged);
             return pdb;
         }
 
-        private int ArgBitTextHeight(string bb)
+        private int ArgBitTextHeight(IProcDefBit bb)
         {
-            return (int) textMetrics.MeasureString(bb, textFont).Height;
+            if (bb is VarDefBlock)
+                return 0;
+            return (int) textMetrics.MeasureString(((ProcDefTextBit)bb).Text, textFont).Height;
         }
 
         public IBlockView ViewFromInvokationBlock(InvokationBlock b, BlockAttributes attribute)
@@ -197,11 +211,11 @@ namespace Kitsune
                         break;
                 }
 
+                
                 ContentView content = new ContentView(subContent.ToArray(), b.ArgTypes.ToArray(), trueArgs, imageParts);
                 InvokationBlockView ib = new InvokationBlockView(b, attribute, content);
                 b.OnArgChanged += new InvokationBlockArgChangeEvent(InvokationBlock_ArgChanged);
-                b.ArgAdded += new InvokationBlockArgAddEvent(InvokationBlock_ArgAdded);
-                b.TextBitAdded += new InvokationTextBitAddEvent(InvokationBlock_TextBitAdded);
+                
                 return ib;
                 
             }
@@ -279,6 +293,14 @@ namespace Kitsune
             }
         }
 
+        void ProcDefTextBit_TextChanged(object sender, string newText)
+        {
+            ProcDefTextBit ptb = (ProcDefTextBit) sender;
+            EditableLabelView ev = (EditableLabelView) ViewFromBlock(ptb);
+            Bitmap bmp = MakeTextBitBitmap(newText, 10);
+            ev.SetBitmap(bmp);
+        }
+
         void ProcDefBlock_FormalParamChanged(object sender, int index, IProcDefBit newBit)
         {
             IBlockView v = ViewFromBlock((VarDefBlock) newBit);
@@ -289,7 +311,24 @@ namespace Kitsune
 
         void ProcDefBlock_FormalParamAdded(object sender, IProcDefBit newBit)
         {
-        
+            ProcDefBlock b = (ProcDefBlock) sender;
+            ProcDefView v = (ProcDefView) ViewFromBlock(b);
+            DataType type = DataType.Invalid;
+            if (newBit is VarDefBlock)
+            {
+                type = ((VarDefBlock)newBit).Type;
+                v.AddFormalBit(ViewFromBlock((VarDefBlock)newBit), type);
+            }
+            else
+            {
+                ProcDefTextBit pb = (ProcDefTextBit)newBit;
+                pb.TextChanged += new ProcDefTextBitTextChangedEvent(ProcDefTextBit_TextChanged);
+                EditableLabelView lv = new EditableLabelView(MakeTextBitBitmap(pb.Text, 10), 
+                    (ProcDefTextBit) newBit);
+                blockViews[pb] = lv;
+
+                v.AddFormalBit(lv, DataType.Invalid);
+            }
         }
 
         void InvokationBlock_ArgChanged(object sender, int arg, IBlock _old, IBlock _new)
@@ -298,20 +337,6 @@ namespace Kitsune
             IInvokationBlockView parent = (IInvokationBlockView) ViewFromBlock((IBlock)sender);
             parent.SetArgView(arg, v);
             modified();
-        }
-
-        void InvokationBlock_ArgAdded(object sender, IBlock _new, DataType newArgType)
-        {
-            IBlockView v = ViewFromBlock(_new);
-            InvokationBlockView parent = (InvokationBlockView) ViewFromBlock((IBlock)sender);
-            parent.AddArgView(v, newArgType);
-        }
-
-        void InvokationBlock_TextBitAdded(object sender, string newBit)
-        {
-            IBlockView v = new LabelView(MakeTextBitBitmap(newBit, 10));
-            InvokationBlockView parent = (InvokationBlockView)ViewFromBlock((IBlock)sender);
-            parent.AddArgView(v, DataType.Invalid);
         }
 
         void blockstack_OnInsert(object sender, int i, IBlock b)

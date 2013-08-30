@@ -12,14 +12,27 @@ namespace Kitsune
     public partial class EditProcDefForm : Form
     {
         private EditProcDefController controller;
-        public EditProcDefForm(EditProcDefController controller)
+
+        public EditProcDefForm()
         {
             InitializeComponent();
             this.SetControlRoundRectRegion();
             pictureBox1.Location = new Point((this.ClientSize.Width - pictureBox1.Width) / 2, 10);
             pictureBox1.BackColor = this.BackColor;
+        }
+
+        public void SetController(EditProcDefController controller)
+        {
             this.controller = controller;
             this.controller.Changed += new EditProcDefControllerChangedEvent(controller_Changed);
+        }
+
+        public TextBox MakeTextBox()
+        {
+            TextBox tb = new TextBox();
+            tb.BorderStyle = BorderStyle.FixedSingle;
+            tb.Parent = pictureBox1;
+            return tb;
         }
 
         void controller_Changed(object sender)
@@ -30,6 +43,11 @@ namespace Kitsune
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             controller.Redraw(e.Graphics, pictureBox1.Size);
+        }
+
+        private void btnAddLabel_Click(object sender, EventArgs e)
+        {
+            controller.AddText();
         }
 
         private void btnAddNumericParam_Click(object sender, EventArgs e)
@@ -60,6 +78,11 @@ namespace Kitsune
         private void EditProcDef_FormClosed(object sender, FormClosedEventArgs e)
         {
             controller.Done();
+        }
+
+        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            controller.MouseDown(e.Location);
         }
     }
 }

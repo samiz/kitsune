@@ -6,26 +6,34 @@ using System.Drawing;
 
 namespace Kitsune
 {
-    public class LabelView : IBlockView
+    public class EditableLabelView : ITextualView
     {
         public event ViewChangedEvent Changed;
         public Bitmap bitmap;
         public IBlockView Parent { get; set; }
         public Point RelativePos { get; set; }
         public ITextualBlock model;
-        public LabelView(Bitmap bitmap)
+        public EditableLabelView(Bitmap bitmap, ITextualBlock model)
         {
+            this.model = model;
             this.bitmap = bitmap;
             Changed += delegate(object sender) { };
+        }
+
+        public void SetBitmap(Bitmap bitmap)
+        {
+            this.bitmap = bitmap;
+            Changed(this);
         }
 
         public IBlock Model
         {
             get
             {
-                throw new InvalidOperationException();
+                return model;
             }
         }
+        
         public System.Drawing.Bitmap Assemble()
         {
             return bitmap;
@@ -52,7 +60,7 @@ namespace Kitsune
 
         public IBlockView ChildHasPoint(Point p, Point origin)
         {
-            return null;
+            return this;
         }
 
         Rectangle Bounds(Point p)

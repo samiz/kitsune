@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace Kitsune
 {
-    public class TextView : IBlockView
+    public class TextView : ITextualView
     {
         public event ViewChangedEvent Changed;
         public Bitmap _cached;
@@ -43,7 +43,7 @@ namespace Kitsune
                 return model;
             }
         }
-
+        public bool Editable { get { return true; } }
         public IBlockView Parent
         {
             get

@@ -16,16 +16,10 @@ namespace Kitsune
         public ArgList(InvokationBlock owner)
         {
             this.owner = owner;
-            this.ArgTypes = new List<DataType>();
             this.ArgAdded += delegate(object sender, IBlock newArg, DataType newArgType) { };
         }
 
-        public ArgList(InvokationBlock owner, IEnumerable<DataType> ArgTypes)
-        {
-            this.owner = owner;
-            this.ArgTypes.AddRange(ArgTypes);
-        }
-
+        
         public IBlock this[int index]
         {
             get

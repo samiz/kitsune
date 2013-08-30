@@ -59,6 +59,9 @@
       <DependentUpon>EditProcDefForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\IProcDefBit.cs" />
+    <Compile Include="Models\ITextualBlock.cs" />
+    <Compile Include="Views\EditableLabelView.cs" />
+    <Compile Include="Views\ITextualView.cs" />
     <Compile Include="Models\IVarBlock.cs" />
     <Compile Include="Models\ProcDefBlock.cs" />
     <Compile Include="Models\ProcDefTextBit.cs" />

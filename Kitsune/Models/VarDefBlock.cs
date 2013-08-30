@@ -5,9 +5,11 @@ using System.Text;
 
 namespace Kitsune
 {
+    public delegate void VarDefBlockTextChangedEvent(object sender, string newText);
     [Serializable]
-    public class VarDefBlock : IVarBlock, IProcDefBit
+    public class VarDefBlock : IVarBlock, IProcDefBit, ITextualBlock
     {
+        [field: NonSerialized] public event VarDefBlockTextChangedEvent TextChanged;
         string _name;
         DataType _type;
 
@@ -15,10 +17,19 @@ namespace Kitsune
         {
             this._name = name;
             this._type = type;
+            TextChanged += delegate(object sender, string newText) { };
         }
         public string Name { get { return _name; } }
+        public string Text { get { return _name; } }
+
         public DataType Type { get { return _type; } }
         public ParentRelationship ParentRelationship { get; set; }
+
+        public void SetText(string text)
+        {
+            _name = text;
+            TextChanged(this, text);
+        }
 
         public IBlock DeepClone()
         {

@@ -34,6 +34,7 @@
             this.btnAddObjectParam = new System.Windows.Forms.Button();
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.btnAddLabel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -46,6 +47,7 @@
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             // 
             // btnAddNumericParam
             // 
@@ -99,14 +101,23 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // btnAddLabel
+            // 
+            this.btnAddLabel.Location = new System.Drawing.Point(163, 155);
+            this.btnAddLabel.Name = "btnAddLabel";
+            this.btnAddLabel.Size = new System.Drawing.Size(75, 23);
+            this.btnAddLabel.TabIndex = 6;
+            this.btnAddLabel.Text = "Add &Label";
+            this.btnAddLabel.UseVisualStyleBackColor = true;
+            this.btnAddLabel.Click += new System.EventHandler(this.btnAddLabel_Click);
+            // 
             // EditProcDefForm
             // 
-            this.AcceptButton = this.btnOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
-            this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(404, 273);
+            this.Controls.Add(this.btnAddLabel);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.btnAddObjectParam);
@@ -130,5 +141,6 @@
         private System.Windows.Forms.Button btnAddObjectParam;
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Button btnAddLabel;
     }
 }

@@ -11,7 +11,7 @@ namespace Kitsune
     {
         public event ViewChangedEvent Changed;
         List<IBlockView> argViews = new List<IBlockView>();
-        BitArray trueArgs;
+        List<bool> trueArgs = new List<bool>();
         List<int> argIndexes = new List<int>();
         List<Bitmap> parts = new List<Bitmap>();
         Bitmap _cached;
@@ -25,7 +25,8 @@ namespace Kitsune
 
         public ContentView(IBlockView[] argViews, DataType[] argTypes, BitArray trueArgs, NineContent abc)
         {
-            this.trueArgs = trueArgs;
+            foreach(bool b in trueArgs)
+                this.trueArgs.Add(b);
             this.ArgTypes.AddRange(argTypes);
             this.abc = abc;
             Changed += delegate(object sender) {};
@@ -34,9 +35,9 @@ namespace Kitsune
             foreach (IBlockView v in argViews)
             {
                 if (trueArgs[i])
-                    AddSubView(v, argTypes[arg++], i);
+                    AddSubView(v, argTypes[arg++], i, false);
                 else
-                    AddSubView(v, DataType.Invalid, i);
+                    AddSubView(v, DataType.Invalid, i, false);
                 i++;
             }
             Reassemble();
@@ -65,15 +66,31 @@ namespace Kitsune
         }
         public void AddSubView(IBlockView v, DataType argType)
         {
-            AddSubView(v, argType, argViews.Count);
+            AddSubView(v, argType, argViews.Count, true);
         }
 
         public void AddSubView(IBlockView v, DataType argType, int i)
         {
-            if (!(v is LabelView))
+            AddSubView(v, argType, i, true);
+        }
+
+        /*
+         Here, newSubView is set to false when adding sub views from the constructor (so the
+         view's data type is already added to ArgTypes. From outside the class the public
+         AddSubView defined above is called, always for new subviews
+         */
+        private void AddSubView(IBlockView v, DataType argType, int i, bool newSubView)
+        {
+            if (!(v is LabelView || v is EditableLabelView))
             {
                 argIndexes.Add(i);
-                ArgTypes.Add(argType);
+                trueArgs.Add(true);
+                if (newSubView)
+                    ArgTypes.Add(argType);
+            }
+            else
+            {
+                trueArgs.Add(false);
             }
 
             if (v.Parent != null)
@@ -183,6 +200,7 @@ namespace Kitsune
                     Point p = abc.TextStart;
                     int yC = (height - this.parts[0].Height) / 2;
                     g.DrawImageUnscaled(parts[0], p.Offseted(0, yC));
+                    
                     argViews[0].RelativePos = p.Offseted(0, yC);
 
                     p.Offset(firstTextWidth + abc.TextArgDist, 0);
@@ -191,6 +209,7 @@ namespace Kitsune
                     {
                         yC = (height - this.parts[i].Height) / 2;
                         g.DrawImageUnscaled(this.parts[i], p.Offseted(0, yC));
+                        
                         Point relativePos = p.Offseted(0, yC);
                         argViews[i].RelativePos = relativePos;
 
@@ -290,7 +309,7 @@ namespace Kitsune
             {
                 IBlockView v = argViews[i];
                 Point rp = v.RelativePos;
-                if (!trueArgs[i])
+                if (!trueArgs[i] && !(v is ITextualView))
                     continue;
                 if (v.HasPoint(p, origin.Offseted(rp.X, rp.Y)))
                     return v.ChildHasPoint(p, origin.Offseted(rp.X, rp.Y));

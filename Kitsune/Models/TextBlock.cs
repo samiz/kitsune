@@ -7,7 +7,7 @@ namespace Kitsune
 {
     public delegate void TextBlockTextChangedEvent(object sender, string newStr);
     [Serializable]
-    public class TextBlock : IBlock
+    public class TextBlock : ITextualBlock
     {
         [field: NonSerialized] public event TextBlockTextChangedEvent TextChanged;
         string text;
@@ -23,7 +23,7 @@ namespace Kitsune
         }
         public ParentRelationship ParentRelationship { get; set;}
 
-        internal void SetText(string newStr)
+        public void SetText(string newStr)
         {
             this.text = newStr;
             TextChanged(this, newStr);

@@ -11,22 +11,25 @@ namespace Kitsune
         public event ViewChangedEvent Changed;
         ProcDefBlock _model;
 
-        ContentView content;
+        ContentView surroundingContent;
+        ContentView invokationContent;
         IStackableBlockView body;
 
         Bitmap _cached;
 
-        public ProcDefView(ProcDefBlock model, ContentView content, IStackableBlockView body)
+        public ProcDefView(ProcDefBlock model, ContentView surroundingContent,
+        ContentView invokationContent, IStackableBlockView body)
         {
             this._model = model;
-            this.content = content;
-            
-            Changed += delegate(object sender) { };
-            content.Changed += new ViewChangedEvent(content_Changed);
-            content.Parent = this;
-            content.RelativePos = new Point(0, 0);
+            this.surroundingContent = surroundingContent;
+            this.invokationContent = invokationContent;
 
+            Changed += delegate(object sender) { };
             this.SetBody(body);
+                        
+            surroundingContent.Changed += new ViewChangedEvent(content_Changed);
+            surroundingContent.Parent = this;
+            invokationContent.RelativePos = new Point(0, 0);
 
             Reassemble();
         }
@@ -44,17 +47,17 @@ namespace Kitsune
 
         public void AddFormalBit(IBlockView bit, DataType type)
         {
-            content.AddSubView(bit, type);
+            invokationContent.AddSubView(bit, type);
         }
 
         public void RemoveFormalBit(int index)
         {
-            content.RemoveSubView(index);
+            invokationContent.RemoveSubView(index);
         }
 
         public void SetFormalBit(int index, IBlockView v)
         {
-            content.SetSubView(index, v);
+            invokationContent.SetSubView(index, v);
         }
 
         public void SetBody(IStackableBlockView body)
@@ -103,7 +106,7 @@ namespace Kitsune
 
         public void Reassemble()
         {
-            Bitmap contentBmp = content.Assemble();
+            Bitmap contentBmp = surroundingContent.Assemble();
             Bitmap bodyBmp = body.Assemble();
             int width = Math.Max(contentBmp.Width, bodyBmp.Width);
             int height = contentBmp.Height + bodyBmp.Height - BlockStackView.NotchHeight;
@@ -112,7 +115,7 @@ namespace Kitsune
             {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                 g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
-
+                
                 g.DrawImageUnscaled(contentBmp, 0, 0);
                 g.DrawImageUnscaled(bodyBmp, 0, contentBmp.Height - BlockStackView.NotchHeight);
             }
@@ -136,12 +139,22 @@ namespace Kitsune
 
         public bool HasPoint(System.Drawing.Point p, System.Drawing.Point origin)
         {
-            throw new NotImplementedException();
+            int x = p.X - origin.X;
+            int y = p.Y - origin.Y;
+            if (x < 0 || x >= _cached.Width || y < 0 || y >= _cached.Height)
+                return false;
+            return _cached.GetPixel(x, y).ToArgb() != Color.Transparent.ToArgb();
         }
 
         public IBlockView ChildHasPoint(System.Drawing.Point p, System.Drawing.Point origin)
         {
-            throw new NotImplementedException();
+            IBlockView v = invokationContent;
+            Point rp = v.RelativePos;
+            
+            if (v.HasPoint(p, origin.Offseted(rp.X, rp.Y)))
+                    return v.ChildHasPoint(p, origin.Offseted(rp.X, rp.Y));
+            
+            return this;
         }
     }
 }
