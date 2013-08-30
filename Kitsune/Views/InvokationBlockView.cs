@@ -42,6 +42,16 @@ namespace Kitsune
             content.SetArgView(i, v);
         }
 
+        internal void AddArgView(IBlockView v, DataType type)
+        {
+            content.AddSubView(v, type);
+        }
+
+        public void AddLabelView(LabelView v)
+        {
+            content.AddSubView(v, DataType.Invalid);
+        }
+
         public Bitmap Assemble()
         {
             return content.Assemble();

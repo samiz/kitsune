@@ -16,15 +16,17 @@ namespace Kitsune
 
         Bitmap _cached;
 
-        public ProcDefView(ProcDefBlock model, ContentView content)
+        public ProcDefView(ProcDefBlock model, ContentView content, IStackableBlockView body)
         {
             this._model = model;
             this.content = content;
-
+            
             Changed += delegate(object sender) { };
             content.Changed += new ViewChangedEvent(content_Changed);
             content.Parent = this;
             content.RelativePos = new Point(0, 0);
+
+            this.SetBody(body);
 
             Reassemble();
         }
@@ -81,6 +83,8 @@ namespace Kitsune
 
         private void DetachBody(IStackableBlockView v)
         {
+            if (v == null)
+                return;
             if (!(v.Parent == this))
             {
                 throw new InvalidOperationException("How did the parent of my body not be me??");

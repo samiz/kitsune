@@ -12,6 +12,7 @@ namespace Kitsune
         public event EditProcDefControllerChangedEvent Changed;
         ProcDefView view;
         ProcDefBlock model;
+        InvokationBlock definedProc;
         BlockViewFactory factory;
 
         Dictionary<string, int> defaultArgNames = new Dictionary<string, int>();
@@ -20,6 +21,7 @@ namespace Kitsune
             this.view = view;
             this.view.Changed += new ViewChangedEvent(view_Changed);
             this.model = model;
+            this.definedProc = model.Template;
             this.factory = factory;
             this.Changed += delegate(object sender) { };
         }
@@ -35,20 +37,22 @@ namespace Kitsune
 
         public void Redraw(Graphics g, Size size)
         {
-            g.Clear(Color.CornflowerBlue);
-            g.DrawImageUnscaled(view.Assemble(), 0, 0);
+            g.Clear(Color.WhiteSmoke);
+            Bitmap b = view.Assemble();
+            Point center = size.Center(b.Size);
+            g.DrawImageUnscaled(b, center);
         }
 
         public void AddArg(DataType type)
         {
             string argName = MakeArgName(type);
-            model.AddBit(new VarDefBlock(argName, type));
+            definedProc.AddArg(new VarDefBlock(argName, type), type);
         }
 
         public void AddText()
         {
             string text = GenerateNewName("label");
-            model.AddBit(new ProcDefTextBit(text));
+            // model.AddBit(new ProcDefTextBit(text));
         }
 
         private string MakeArgName(DataType type)

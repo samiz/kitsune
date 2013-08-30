@@ -90,19 +90,16 @@ namespace Kitsune
                 args[i] = Default(bi.ArgTypes[i]);
             }
 
-            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes);
-            block.Args.AddRange(args);
+            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes, args);
+
             return block;
         }
         public IBlock makeNewBlock(string text, IBlock[] args)
         {
             BlockInfo bi = blockInfos[text];
             
-            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes);
-            foreach(IBlock arg in args)
-            {
-                block.Args.Add(arg.DeepClone());
-            }
+            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes, args.Select(a=>a.DeepClone()));
+            
             
             return block;
         }

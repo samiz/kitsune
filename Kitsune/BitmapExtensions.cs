@@ -70,6 +70,11 @@ namespace Kitsune
         {
             return new SizeF(size.Width, size.Height);
         }
+
+        public static Point Center(this Size bigger, Size smaller)
+        {
+            return new Point((bigger.Width - smaller.Width)/2, (bigger.Height - smaller.Height)/2);
+        }
         public static Point ScanPix(this Bitmap bmp, int x, int y, Color clr)
         {
             for (int xx = x; xx < bmp.Width; ++xx)
@@ -348,6 +353,34 @@ namespace Kitsune
                 return Color.FromArgb(255, t, p, v);
             else
                 return Color.FromArgb(255, v, p, q);
+        }
+
+        [System.Runtime.InteropServices.DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+        private static extern System.IntPtr CreateRoundRectRgn
+        (
+            int nLeftRect, // x-coordinate of upper-left corner
+            int nTopRect, // y-coordinate of upper-left corner
+            int nRightRect, // x-coordinate of lower-right corner
+            int nBottomRect, // y-coordinate of lower-right corner
+            int nWidthEllipse, // height of ellipse
+            int nHeightEllipse // width of ellipse
+        );
+        [System.Runtime.InteropServices.DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
+        private static extern bool DeleteObject(System.IntPtr hObject);
+
+        public static void SetControlRoundRectRegion(this Control control)
+        {
+            const int _BorderRadius = 10;
+            System.IntPtr ptrBorder = CreateRoundRectRgn(0, 0, control.Width, control.Height, _BorderRadius, _BorderRadius);
+
+            try 
+            { 
+                control.Region = System.Drawing.Region.FromHrgn(ptrBorder); 
+            }
+            finally 
+            {
+                DeleteObject(ptrBorder); 
+            }
         }
     }
 

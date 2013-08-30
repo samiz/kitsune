@@ -52,11 +52,11 @@
     <Compile Include="Controllers\BlockViewFactory.cs" />
     <Compile Include="Controllers\Document.cs" />
     <Compile Include="Controllers\EditProcDefController.cs" />
-    <Compile Include="EditProcDef.cs">
+    <Compile Include="EditProcDefForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EditProcDef.Designer.cs">
-      <DependentUpon>EditProcDef.cs</DependentUpon>
+    <Compile Include="EditProcDefForm.Designer.cs">
+      <DependentUpon>EditProcDefForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\IProcDefBit.cs" />
     <Compile Include="Models\IVarBlock.cs" />
@@ -115,8 +115,8 @@
     <Compile Include="VM\Method.cs" />
     <Compile Include="VM\Process.cs" />
     <Compile Include="VM\VM.cs" />
-    <EmbeddedResource Include="EditProcDef.resx">
-      <DependentUpon>EditProcDef.cs</DependentUpon>
+    <EmbeddedResource Include="EditProcDefForm.resx">
+      <DependentUpon>EditProcDefForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -231,7 +231,7 @@
     <Content Include="Assets\Tools\wait.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\var_purple.small.bmp">
+    <Content Include="Assets\var_purple_small.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

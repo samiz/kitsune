@@ -12,7 +12,6 @@ namespace Kitsune
         public Bitmap[][] asArray;
         public virtual void FromBitmapCutting(Bitmap fullBmp, Color mark)
         {
-
             Bitmap[][] bmps = fullBmp.SplitGrid(Color.Red);
 
             this.asArray = bmps;
@@ -25,6 +24,14 @@ namespace Kitsune
             this.WMid = bmps[1][0];
             this.EMid = bmps[1][2];
             this.Center = bmps[1][1];
+        }
+
+        public static Nine FromBitmap(Bitmap fullBmp, Color mark)
+        {
+            fullBmp.MakeTransparent(fullBmp.GetPixel(0, 0));
+            Nine ret = new Nine();
+            ret.FromBitmapCutting(fullBmp, mark);
+            return ret;
         }
 
         public void TestRender(Graphics g, Point p, Font f)

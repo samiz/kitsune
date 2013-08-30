@@ -15,6 +15,9 @@ namespace Kitsune
         public EditProcDefForm(EditProcDefController controller)
         {
             InitializeComponent();
+            this.SetControlRoundRectRegion();
+            pictureBox1.Location = new Point((this.ClientSize.Width - pictureBox1.Width) / 2, 10);
+            pictureBox1.BackColor = this.BackColor;
             this.controller = controller;
             this.controller.Changed += new EditProcDefControllerChangedEvent(controller_Changed);
         }

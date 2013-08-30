@@ -30,9 +30,13 @@ namespace Kitsune
             this.abc = abc;
             Changed += delegate(object sender) {};
             int i = 0;
+            int arg = 0;
             foreach (IBlockView v in argViews)
             {
-                AddSubView(v, argTypes[i], i);
+                if (trueArgs[i])
+                    AddSubView(v, argTypes[arg++], i);
+                else
+                    AddSubView(v, DataType.Invalid, i);
                 i++;
             }
             Reassemble();
@@ -63,20 +67,26 @@ namespace Kitsune
         {
             AddSubView(v, argType, argViews.Count);
         }
+
         public void AddSubView(IBlockView v, DataType argType, int i)
         {
             if (!(v is LabelView))
+            {
                 argIndexes.Add(i);
+                ArgTypes.Add(argType);
+            }
 
             if (v.Parent != null)
             {
                 ((ContentView)v.Parent).Detach(v);
             }
             Attach(v);
-            parts.Add(v.Assemble());
+            argViews.Add(v);
+            //parts.Add(v.Assemble());
             Reassemble();
             Changed(this);
         }
+
 
         public void RemoveSubView(int index)
         {
@@ -84,6 +94,7 @@ namespace Kitsune
             Detach(v);
             argViews.RemoveAt(index);
             parts.RemoveAt(index);
+            
             Reassemble();
             Changed(this);
         }
@@ -139,7 +150,7 @@ namespace Kitsune
             this.parts.Clear();
             this.parts.AddRange(argViews.Select(v => v.Assemble()));
 
-            int firstTextWidth = Math.Max(parts[0].Width, abc.MinTextWidth);
+            int firstTextWidth = parts.Count ==0? 1: Math.Max(parts[0].Width, abc.MinTextWidth);
             int bmpWidth = abc.TextStart.X
                 + firstTextWidth
                 + abc.TextArgDist
@@ -149,7 +160,7 @@ namespace Kitsune
 
             bmpWidth = Math.Max(bmpWidth, abc.MinWidth);
 
-            int height = parts.Max(b => b.Height);
+            int height = parts.Count ==0? 1: parts.Max(b => b.Height);
             height = Math.Max(height, abc.WMid.Height);
 
             int width = bmpWidth - (abc.NW.Width + abc.NE.Width);
@@ -167,21 +178,24 @@ namespace Kitsune
                 g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 
                 abc.RenderToFit(g, width, height);
-                Point p = abc.TextStart;
-                int yC = (height - this.parts[0].Height) / 2;
-                g.DrawImageUnscaled(parts[0], p.Offseted(0, yC));
-                argViews[0].RelativePos = p.Offseted(0, yC);
-
-                p.Offset(firstTextWidth + abc.TextArgDist, 0);
-
-                for (int i = 1; i < parts.Count; ++i)
+                if (parts.Count != 0)
                 {
-                    yC = (height - this.parts[i].Height) / 2;
-                    g.DrawImageUnscaled(this.parts[i], p.Offseted(0, yC));
-                    Point relativePos = p.Offseted(0, yC);
-                    argViews[i].RelativePos = relativePos;
-                    
-                    p.Offset(this.parts[i].Width, 0);
+                    Point p = abc.TextStart;
+                    int yC = (height - this.parts[0].Height) / 2;
+                    g.DrawImageUnscaled(parts[0], p.Offseted(0, yC));
+                    argViews[0].RelativePos = p.Offseted(0, yC);
+
+                    p.Offset(firstTextWidth + abc.TextArgDist, 0);
+
+                    for (int i = 1; i < parts.Count; ++i)
+                    {
+                        yC = (height - this.parts[i].Height) / 2;
+                        g.DrawImageUnscaled(this.parts[i], p.Offseted(0, yC));
+                        Point relativePos = p.Offseted(0, yC);
+                        argViews[i].RelativePos = relativePos;
+
+                        p.Offset(this.parts[i].Width, 0);
+                    }
                 }
             }
             _width = bmpWidth;

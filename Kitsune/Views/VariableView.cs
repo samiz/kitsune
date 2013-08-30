@@ -51,7 +51,7 @@ namespace Kitsune
                 g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 
                 abc.RenderToFit(g, middleWidth, middleHeight);
-                g.DrawString(_model.Name, textFont, Brushes.Black, 2, 2);
+                g.DrawString(_model.Name, textFont, Brushes.White, 2, 2);
             }
         }
 

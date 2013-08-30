@@ -553,6 +553,7 @@ namespace Kitsune
         public EditProcDefController NewProcDef()
         {
             ProcDefBlock block = new ProcDefBlock();
+            block.SetBody(new BlockStack());
             ProcDefView view = (ProcDefView) viewFactory.ViewFromBlock(block);
             EditProcDefController controller = new EditProcDefController(view, block, viewFactory);
             return controller;

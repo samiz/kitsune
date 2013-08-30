@@ -249,8 +249,7 @@ namespace Kitsune
         {
             List<DataType> typesList = new List<DataType>();
             typesList.AddRange(types);
-            InvokationBlock ret = new InvokationBlock(invokation, BlockAttributes.Hat, typesList);
-            ret.Args.AddRange(values);
+            InvokationBlock ret = new InvokationBlock(invokation, BlockAttributes.Hat, typesList, values);
             return ret;
         }
 
@@ -470,6 +469,7 @@ namespace Kitsune
         private void defineNewProcToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EditProcDefForm form = new EditProcDefForm(controller.NewProcDef());
+            form.StartPosition = FormStartPosition.CenterParent;
             form.ShowDialog();
         }
 
