@@ -24,16 +24,21 @@ namespace Kitsune
         string originalEditedText;
         TextBox editedTextBox;
         Func<TextBox> textBoxMaker;
+        Rectangle debugRect = new Rectangle(), debugRect2 = new Rectangle();
+        Button eraseButton;
 
         Dictionary<string, int> defaultArgNames = new Dictionary<string, int>();
         public EditProcDefController(ProcDefView view, ProcDefBlock model, BlockViewFactory factory,
-            Func<TextBox> textBoxMaker)
+            Func<TextBox> textBoxMaker, Button eraseButton)
         {
             this.view = view;
             this.view.Changed += new ViewChangedEvent(view_Changed);
             this.model = model;
             this.factory = factory;
             this.textBoxMaker = textBoxMaker;
+            this.eraseButton = eraseButton;
+            this.eraseButton.Hide();
+            this.eraseButton.Click += new EventHandler(eraseButton_Click);
             this.Changed += delegate(object sender) { };
             State = EditState.Ready;
         }
@@ -51,9 +56,18 @@ namespace Kitsune
         {
             g.Clear(Color.WhiteSmoke);
             Bitmap b = view.Assemble();
-            Point center = size.Center(b.Size);
-            view.RelativePos = center;
-            g.DrawImageUnscaled(b, center);
+            
+            // I wish it were the center, but there's some mismatch
+            // between a label's textbox and the place where the text is drawn
+            // for now we hide it by not constantly moving the view
+            // strangely, the mistmatch disappears (text is drawn in the right place)
+            // when view.RelativePos is not moved anymore. hmm...
+            // Point origin = size.Center(b.Size);
+            Point origin = new Point(15, 15);
+            view.RelativePos = origin;
+            g.DrawImageUnscaled(b, origin);
+            //g.DrawRectangle(Pens.Teal, debugRect);
+            //g.DrawRectangle(Pens.Fuchsia, debugRect2);
         }
 
         public void AddArg(DataType type)
@@ -65,23 +79,57 @@ namespace Kitsune
         public void AddText()
         {
             string text = GenerateNewName("label");
-            model.AddBit(new ProcDefTextBit(text));
+            ProcDefTextBit t = new ProcDefTextBit(text);
+            model.AddBit(t);
+            ITextualView v = (ITextualView) factory.ViewFromBlock(t);
+            SetEditState(v);
         }
 
         internal void MouseDown(Point p)
         {
+            if (State == EditState.TextEditing)
+            {
+                IBlockView hit = HitTest(p);
+                if (hit != editedTextView)
+                {
+                    ResetTextEditState();
+                }
+            }
+            // Note that we can enter the following if block
+            // after the preceding one
             if (State == EditState.Ready)
             {
                 IBlockView hit = HitTest(p);
+                
                 if (hit is ITextualView)
                 {
                     SetEditState(hit as ITextualView);
                 }
             }
+            
+        }
+
+        void eraseButton_Click(object sender, EventArgs e)
+        {
+            IProcDefBit b = (IProcDefBit)editedTextModel;
+            ResetTextEditState();
+            model.RemoveBit(b);
+            eraseButton.Hide();
+        }
+
+        private void ShowEraseButton(IBlockView hit)
+        {
+            eraseButton.Location = new Point(hit.AbsolutePos().X, 2);
+            eraseButton.Show();
         }
 
         private void SetEditState(ITextualView v)
         {
+            if (State == EditState.TextEditing)
+            {
+                // We're done with any old editing operation
+                ResetTextEditState();
+            }
             editedTextView = v;
             ITextualBlock model = (ITextualBlock)v.Model;
             editedTextModel = model;
@@ -90,16 +138,15 @@ namespace Kitsune
             editedTextBox = tb;
 
             tb.Text = model.Text;
-            tb.Location = v.AbsolutePos();
-            tb.Size = v.Assemble().Size;
+            PositionTextBox(tb, v.AbsoluteBounds());
             
             tb.TextChanged += new EventHandler(argTextBox_TextChanged);
             tb.KeyDown += new KeyEventHandler(argTextBox_KeyDown);
             
             tb.Show();
             tb.Focus();
+            ShowEraseButton(v);
             State = EditState.TextEditing;
-
         }
 
         private void ResetTextEditState()
@@ -122,6 +169,7 @@ namespace Kitsune
             {
                 editedTextBox.Text = originalEditedText;
                 ResetTextEditState();
+                e.SuppressKeyPress = true;
             }
         }
 
@@ -130,12 +178,24 @@ namespace Kitsune
             TextBox tb = (TextBox)sender;
             string newStr = tb.Text;
             editedTextModel.SetText(newStr);
-            tb.Size = editedTextView.Assemble().Size;
+            
             Changed(this);
 
             // since the view is always centered, changed could move the view
             // so we move the textbox accordingly
-            tb.Location = editedTextView.AbsolutePos();
+            // PositionTextBox(tb, editedTextView.AbsoluteBounds());
+
+            using (Graphics g = tb.Parent.CreateGraphics())
+            {
+                debugRect = tb.Bounds.Offseted(0, 50);
+                debugRect2 = editedTextView.AbsoluteBounds().Offseted(0, 60);
+            }
+        }
+
+        private void PositionTextBox(TextBox tb, Rectangle r)
+        {
+            tb.Location = r.Location;
+            tb.Size = r.Size;
         }
 
         private string MakeArgName(DataType type)

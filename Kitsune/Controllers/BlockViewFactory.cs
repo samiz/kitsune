@@ -155,6 +155,7 @@ namespace Kitsune
             IStackableBlockView body = (IStackableBlockView)ViewFromBlock(b.Body);
             ProcDefView pdb = new ProcDefView(b, outerContent, innerContent, body);
             b.FormalParamAdded += new ProcDefBitAddedEvent(ProcDefBlock_FormalParamAdded);
+            b.FormalParamRemoved += new ProcDefBitRemovedEvent(ProcDefBlock_FormalParamRemoved);
             b.FormalParamChanged += new ProcDefBitChangedEvent(ProcDefBlock_FormalParamChanged);
             return pdb;
         }
@@ -297,7 +298,8 @@ namespace Kitsune
         {
             ProcDefTextBit ptb = (ProcDefTextBit) sender;
             EditableLabelView ev = (EditableLabelView) ViewFromBlock(ptb);
-            Bitmap bmp = MakeTextBitBitmap(newText, 10);
+            int height = ArgBitTextHeight(ptb);
+            Bitmap bmp = MakeTextBitBitmap(newText, height);
             ev.SetBitmap(bmp);
         }
 
@@ -323,12 +325,20 @@ namespace Kitsune
             {
                 ProcDefTextBit pb = (ProcDefTextBit)newBit;
                 pb.TextChanged += new ProcDefTextBitTextChangedEvent(ProcDefTextBit_TextChanged);
-                EditableLabelView lv = new EditableLabelView(MakeTextBitBitmap(pb.Text, 10), 
+                EditableLabelView lv = new EditableLabelView(MakeTextBitBitmap(pb.Text, ArgBitTextHeight(pb)), 
                     (ProcDefTextBit) newBit);
                 blockViews[pb] = lv;
 
                 v.AddFormalBit(lv, DataType.Invalid);
             }
+        }
+
+        void ProcDefBlock_FormalParamRemoved(object sender, IProcDefBit bit)
+        {
+            ProcDefBlock b = (ProcDefBlock)sender;
+            ProcDefView v = (ProcDefView)ViewFromBlock(b);
+            IBlockView bitView = ViewFromBlock((IBlock)bit);
+            v.RemoveFormalBit(bitView);
         }
 
         void InvokationBlock_ArgChanged(object sender, int arg, IBlock _old, IBlock _new)
@@ -370,8 +380,13 @@ namespace Kitsune
             if (!p.StartsWith("_"))
             {
                 int w = (int)textMetrics.MeasureString(p, boldFont).Width;
+                if (w == 0)
+                    w = 4; // prevent zero-width bitmaps
+
                 Bitmap b = new Bitmap(w, height);
                 Graphics g = Graphics.FromImage(b);
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
                 g.Clear(Color.Transparent);
                 g.DrawString(p, boldFont, Brushes.White, 0, 0);
                 g.Dispose();

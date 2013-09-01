@@ -35,6 +35,7 @@
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnAddLabel = new System.Windows.Forms.Button();
+            this.btnErase = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -111,12 +112,28 @@
             this.btnAddLabel.UseVisualStyleBackColor = true;
             this.btnAddLabel.Click += new System.EventHandler(this.btnAddLabel_Click);
             // 
+            // btnErase
+            // 
+            this.btnErase.AutoSize = true;
+            this.btnErase.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnErase.BackColor = System.Drawing.Color.Transparent;
+            this.btnErase.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.btnErase.FlatAppearance.BorderSize = 0;
+            this.btnErase.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnErase.Image = global::Kitsune.Properties.Resources.eraseButton;
+            this.btnErase.Location = new System.Drawing.Point(73, 71);
+            this.btnErase.Name = "btnErase";
+            this.btnErase.Size = new System.Drawing.Size(16, 16);
+            this.btnErase.TabIndex = 7;
+            this.btnErase.UseVisualStyleBackColor = false;
+            // 
             // EditProcDefForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
             this.ClientSize = new System.Drawing.Size(404, 273);
+            this.Controls.Add(this.btnErase);
             this.Controls.Add(this.btnAddLabel);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
@@ -130,6 +147,7 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.EditProcDef_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -142,5 +160,6 @@
         private System.Windows.Forms.Button btnOk;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnAddLabel;
+        private System.Windows.Forms.Button btnErase;
     }
 }

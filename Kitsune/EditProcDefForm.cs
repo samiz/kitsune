@@ -19,6 +19,11 @@ namespace Kitsune
             this.SetControlRoundRectRegion();
             pictureBox1.Location = new Point((this.ClientSize.Width - pictureBox1.Width) / 2, 10);
             pictureBox1.BackColor = this.BackColor;
+            if (!pictureBox1.Controls.Contains(btnErase))
+            {
+                this.Controls.Remove(btnErase);
+                pictureBox1.Controls.Add(btnErase);
+            }
         }
 
         public void SetController(EditProcDefController controller)
@@ -32,6 +37,7 @@ namespace Kitsune
             TextBox tb = new TextBox();
             tb.BorderStyle = BorderStyle.FixedSingle;
             tb.Parent = pictureBox1;
+            pictureBox1.Controls.Add(tb);
             return tb;
         }
 
@@ -83,6 +89,11 @@ namespace Kitsune
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             controller.MouseDown(e.Location);
+        }
+
+        internal Button GetEraseButton()
+        {
+            return btnErase;
         }
     }
 }

@@ -19,6 +19,11 @@ namespace Kitsune
             return p;
         }
 
+        public static Rectangle AbsoluteBounds(this IBlockView v)
+        {
+            return new Rectangle(v.AbsolutePos(), v.Assemble().Size);
+        }
+
         public static IBlockView AbsoluteAncestor(this IBlockView v)
         {
             while (v.Parent != null)

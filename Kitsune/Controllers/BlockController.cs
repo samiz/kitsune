@@ -550,12 +550,12 @@ namespace Kitsune
             return hit;
         }
 
-        public EditProcDefController NewProcDef(Func<TextBox> textBoxMaker)
+        public EditProcDefController NewProcDef(Func<TextBox> textBoxMaker, Button eraseButton)
         {
             ProcDefBlock block = new ProcDefBlock();
             block.SetBody(new BlockStack());
             ProcDefView view = (ProcDefView) viewFactory.ViewFromBlock(block);
-            EditProcDefController controller = new EditProcDefController(view, block, viewFactory, textBoxMaker);
+            EditProcDefController controller = new EditProcDefController(view, block, viewFactory, textBoxMaker, eraseButton);
             return controller;
         }
 

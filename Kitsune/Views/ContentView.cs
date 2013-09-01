@@ -116,6 +116,14 @@ namespace Kitsune
             Changed(this);
         }
 
+        internal void RemoveSubView(IBlockView v)
+        {
+            int index = argViews.IndexOf(v);
+            if (index == -1)
+                throw new ArgumentException("ContentView.RemoveSubView: view doesn't exist");
+            RemoveSubView(index);
+        }
+
         private void Attach(IBlockView v)
         {
             v.Changed += new ViewChangedEvent(ArgView_Changed);
@@ -199,18 +207,18 @@ namespace Kitsune
                 {
                     Point p = abc.TextStart;
                     int yC = (height - this.parts[0].Height) / 2;
-                    g.DrawImageUnscaled(parts[0], p.Offseted(0, yC));
-                    
-                    argViews[0].RelativePos = p.Offseted(0, yC);
+                    Point relativePos = p.Offseted(0, yC);
+                    g.DrawImageUnscaled(parts[0], relativePos);
+                    argViews[0].RelativePos = relativePos;
 
                     p.Offset(firstTextWidth + abc.TextArgDist, 0);
 
                     for (int i = 1; i < parts.Count; ++i)
                     {
                         yC = (height - this.parts[i].Height) / 2;
-                        g.DrawImageUnscaled(this.parts[i], p.Offseted(0, yC));
                         
-                        Point relativePos = p.Offseted(0, yC);
+                        relativePos = p.Offseted(0, yC);
+                        g.DrawImageUnscaled(this.parts[i], relativePos);              
                         argViews[i].RelativePos = relativePos;
 
                         p.Offset(this.parts[i].Width, 0);

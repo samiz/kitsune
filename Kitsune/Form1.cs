@@ -470,7 +470,7 @@ namespace Kitsune
         private void defineNewProcToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EditProcDefForm form = new EditProcDefForm();
-            form.SetController(controller.NewProcDef(() => form.MakeTextBox()));
+            form.SetController(controller.NewProcDef(() => form.MakeTextBox(), form.GetEraseButton()));
             form.StartPosition = FormStartPosition.CenterParent;
             form.ShowDialog();
         }

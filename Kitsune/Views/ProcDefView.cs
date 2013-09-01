@@ -50,6 +50,10 @@ namespace Kitsune
             invokationContent.AddSubView(bit, type);
         }
 
+        public void RemoveFormalBit(IBlockView bit)
+        {
+            invokationContent.RemoveSubView(bit);
+        }
         public void RemoveFormalBit(int index)
         {
             invokationContent.RemoveSubView(index);
