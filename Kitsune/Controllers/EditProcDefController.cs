@@ -73,13 +73,16 @@ namespace Kitsune
         public void AddArg(DataType type)
         {
             string argName = MakeArgName(type);
-            model.AddBit(new VarDefBlock(argName, type));
+            VarDefBlock v = new VarDefBlock(argName, type);
+            v.ParentRelationship = new ParentRelationship(ParentRelationshipType.FormalParameter, model, model.Bits.Count);
+            model.AddBit(v);
         }
 
         public void AddText()
         {
             string text = GenerateNewName("label");
             ProcDefTextBit t = new ProcDefTextBit(text);
+            t.ParentRelationship = new ParentRelationship(ParentRelationshipType.None, model, -1);
             model.AddBit(t);
             ITextualView v = (ITextualView) factory.ViewFromBlock(t);
             SetEditState(v);
@@ -234,5 +237,6 @@ namespace Kitsune
             
             return hit;
         }
+        public ProcDefBlock Model { get { return model; } }
     }
 }

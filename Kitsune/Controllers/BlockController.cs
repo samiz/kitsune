@@ -162,6 +162,22 @@ namespace Kitsune
             blockSpace.RegisterMethod(methodName, attribute, returnType, argTypes, true);
         }
 
+        public void DefineNewProc(ProcDefBlock proc, string category)
+        {
+            string methodName = proc.GetMethodString();
+            DataType[] argTypes = proc.GetArgTypes();
+            blockSpace.RegisterMethod(methodName, BlockAttributes.Stack, DataType.Script, argTypes, false);
+            palette.AddTool(blockSpace,
+                tool("nobmp|"+methodName, category, argTypes.Select(t=>blockSpace.Default(t)).ToArray()));
+
+            Random r = new Random();
+            int thirdX = canvasSize.Width / 3;
+            int thirdY = canvasSize.Height / 3;
+            int x = thirdX + r.Next(thirdX);
+            int y = thirdY + r.Next(thirdY);
+            AddTopLevel(proc, new Point(x, y));
+        }
+
         public TopLevelScript AddTopLevel(IBlock block, Point location)
         {
             return blockSpace.AddScript(new TopLevelScript(location, block, blockSpace));
@@ -337,16 +353,31 @@ namespace Kitsune
                         draggedModel = splitted;
                         hit = blockViews[splitted.Block];
                     }
+                    else if (hit.Model.ParentRelationship.Type == ParentRelationshipType.FormalParameter)
+                    {
+                        ProcDefBlock pd = (ProcDefBlock ) hit.Model.ParentRelationship.Parent;
+                        VarAccessBlock va = new VarAccessBlock((VarDefBlock)pd.Bits[hit.Model.ParentRelationship.Index]);
+                        TopLevelScript tls = AddTopLevel(va, p);
+                        hit = ViewFromBlock(va);
+                        draggedModel = tls;
+                    }
+                    else if (hit.Model.ParentRelationship.Type == ParentRelationshipType.None)
+                    {
+                        hit = null;
+                        draggedModel = null;
+                    }
                 }
                 else
                 {
                     draggedModel = blockSpace.FindScript(hit.Model);
                 }
-
-                dragged = hit;
-                draggingOrigin = p;
-                state = CanvasState.Dragging;
-                PrepareDropRegions(hit.Model);
+                if (hit != null)
+                {
+                    dragged = hit;
+                    draggingOrigin = p;
+                    state = CanvasState.Dragging;
+                    PrepareDropRegions(hit.Model);
+                }
                 Update();
             }
 
@@ -438,6 +469,7 @@ namespace Kitsune
             else if (e.KeyCode == Keys.Escape)
             {
                 editedTextBox.Text = originalEditedText;
+                e.SuppressKeyPress = true;
                 ResetTextEditState();
             }
         }

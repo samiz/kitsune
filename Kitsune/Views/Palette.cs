@@ -54,7 +54,7 @@ namespace Kitsune
         List<ToolSpec> currentTab = new List<ToolSpec>();
         int currentScrollPosition;
         int tabWidth, tabHeight;
-
+        BlockViewFactory dummyFactory;
         public Palette(Size size, Graphics textMetrics, Font textFont)
         {
             initialSize = size;
@@ -77,20 +77,32 @@ namespace Kitsune
             tools.Clear();
 
 
-            BlockViewFactory dummyFactory = new BlockViewFactory(textMetrics, textFont,
+            dummyFactory = new BlockViewFactory(textMetrics, textFont,
                 blockSpace, new Dictionary<IBlock, IBlockView>(), delegate() { });
             foreach (ToolPrototype spec in toolSpecs)
             {
-                string[] parts = spec.tool.Split("|".ToCharArray());
-                string fileName = Path.Combine(filePrefix, parts[0]) + ".bmp";
-                string funcName = parts[1];
-                // Bitmap tbBmp = (Bitmap)Bitmap.FromFile(fileName);
-                Bitmap tbBmp = dummyFactory.ViewFromBlock(blockSpace.makeNewBlock(funcName, spec.defaultArgs))
-                    .Assemble();
-                //tbBmp.MakeTransparent(tbBmp.GetPixel(0, 0));
-                tools.Add(new ToolSpec(tbBmp, funcName, spec.category, spec.defaultArgs));
-                categories.Add(spec.category);
+                AddNewTool(blockSpace, spec);
             }
+        }
+
+        private void AddNewTool(BlockSpace blockSpace, ToolPrototype spec)
+        {
+            string[] parts = spec.tool.Split("|".ToCharArray());
+            //string fileName = Path.Combine(filePrefix, parts[0]) + ".bmp";
+            string funcName = parts[1];
+            // Bitmap tbBmp = (Bitmap)Bitmap.FromFile(fileName);
+            Bitmap tbBmp = dummyFactory.ViewFromBlock(blockSpace.makeNewBlock(funcName, spec.defaultArgs))
+                .Assemble();
+            //tbBmp.MakeTransparent(tbBmp.GetPixel(0, 0));
+            tools.Add(new ToolSpec(tbBmp, funcName, spec.category, spec.defaultArgs));
+            categories.Add(spec.category);
+        }
+        internal void AddTool(BlockSpace blockSpace, ToolPrototype spec)
+        {
+            AddNewTool(blockSpace, spec);
+            LayoutTools(currentCategory);
+            if (currentCategory == spec.category)
+                UpdateBitmap(currentCategory, tabWidth, tabHeight);
         }
         public void LayoutTools(string category)
         {

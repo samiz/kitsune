@@ -22,6 +22,8 @@ namespace Kitsune
 
         public ProcDefBlock()
         {
+            this.ParentRelationship = new ParentRelationship();
+
             this.FormalParamChanged += delegate(object sender, int index, IProcDefBit newBit) { };
             this.FormalParamAdded += delegate(object sender, IProcDefBit newBit) { };
             this.FormalParamRemoved += delegate(object sender, IProcDefBit bit) { };
@@ -29,7 +31,29 @@ namespace Kitsune
         }
 
         public IBlock Body { get { return body; } }
+        
+        internal string GetMethodString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (IProcDefBit bit in Bits)
+                sb.Append(bit.ArgBitString());
+            return sb.ToString();
+        }
 
+
+        internal DataType[] GetArgTypes()
+        {
+            List<DataType> ret = new List<DataType>();
+            foreach (IProcDefBit bit in Bits)
+            {
+                if (bit is VarDefBlock)
+                {
+                    VarDefBlock vdb = bit as VarDefBlock;
+                    ret.Add(vdb.Type);
+                }
+            }
+            return ret.ToArray();
+        }
         public void SetBody(IBlock body)
         {
             this.body = body;
@@ -60,5 +84,6 @@ namespace Kitsune
             ret.body = body.DeepClone();
             return ret;
         }
+
     }
 }

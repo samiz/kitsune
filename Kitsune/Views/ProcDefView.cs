@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace Kitsune
 {
-    public class ProcDefView : IBlockView
+    public class ProcDefView : IStackableBlockView
     {
         public event ViewChangedEvent Changed;
         ProcDefBlock _model;
@@ -113,7 +113,8 @@ namespace Kitsune
             Bitmap contentBmp = surroundingContent.Assemble();
             Bitmap bodyBmp = body.Assemble();
             int width = Math.Max(contentBmp.Width, bodyBmp.Width);
-            int height = contentBmp.Height + bodyBmp.Height - BlockStackView.NotchHeight;
+            //int height = contentBmp.Height + bodyBmp.Height - BlockStackView.NotchHeight;
+            int height = contentBmp.Height + bodyBmp.Height;
             _cached = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(_cached))
             {
@@ -131,14 +132,35 @@ namespace Kitsune
 
         public Point RelativePos { get; set; }
 
-        public IEnumerable<DropRegion> DropRegions(System.Drawing.Point origin)
+        public IEnumerable<DropRegion> DropRegions(Point origin)
         {
-            throw new NotImplementedException();
+            
+            if ((body.Model is BlockStack) && ((BlockStack)body.Model).Empty)
+            {
+                // It's just a placeholder, no 'real' BlockStackView here
+                // We assume here that each script is preceded by a content and that they strictly
+                // alternate, and thus we can set the width of the placeholder to be that of 
+                // the previous content (Contents[i].Width)
+                Rectangle r = new Rectangle(origin, this.Assemble().Size).BottomSlice(5);
+                yield return new DropRegion(DropType.Below,
+                    r,
+                    this);
+            }
+            else
+            {
+                foreach (DropRegion dr in body.DropRegions(origin.Offseted(body.RelativePos)))
+                    yield return dr;
+            }
         }
 
-        public IEnumerable<DropRegion> ChildDropRegions(System.Drawing.Point origin)
+        public IEnumerable<DropRegion> ChildDropRegions(Point origin)
         {
-            throw new NotImplementedException();
+            /*
+              foreach (DropRegion dr in content.ChildDropRegions(origin))
+                yield return dr;
+             //*/
+            foreach (DropRegion dr in body.DropRegions(origin))
+                yield return dr;
         }
 
         public bool HasPoint(System.Drawing.Point p, System.Drawing.Point origin)
@@ -159,6 +181,11 @@ namespace Kitsune
                     return v.ChildHasPoint(p, origin.Offseted(rp.X, rp.Y));
             
             return this;
+        }
+
+        public BlockAttributes EffectiveAttribute()
+        {
+            return BlockAttributes.Hat;
         }
     }
 }

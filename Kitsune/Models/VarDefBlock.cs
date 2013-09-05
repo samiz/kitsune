@@ -25,6 +25,11 @@ namespace Kitsune
         public DataType Type { get { return _type; } }
         public ParentRelationship ParentRelationship { get; set; }
 
+        public string ArgBitString()
+        {
+            return "%";
+        }
+
         public void SetText(string text)
         {
             _name = text;
@@ -40,5 +45,8 @@ namespace Kitsune
         {
             return new VarDefBlock(_name, _type);
         }
+
+
+
     }
 }

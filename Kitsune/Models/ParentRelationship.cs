@@ -8,7 +8,7 @@ namespace Kitsune
     [Serializable]
     public enum ParentRelationshipType
     {
-        None, Stack, Arg
+        None, Stack, Arg, FormalParameter
     }
 
     [Serializable]

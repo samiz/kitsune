@@ -16,6 +16,11 @@ namespace Kitsune
             this.TextChanged += delegate(object sender, string newText) { };
         }
 
+        public string ArgBitString()
+        {
+            return _Text;
+        }
+
         public IProcDefBit DeepClone()
         {
             return new ProcDefTextBit(Text);
@@ -32,21 +37,14 @@ namespace Kitsune
             TextChanged(this, text);
         }
 
-        public ParentRelationship ParentRelationship
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public ParentRelationship ParentRelationship { get; set; }
 
         IBlock IBlock.DeepClone()
         {
             throw new NotImplementedException();
         }
+
+
+
     }
 }

@@ -33,6 +33,13 @@ namespace Kitsune
             return r2;
         }
 
+        public static Rectangle Offseted(this Rectangle r, Point p)
+        {
+            Rectangle r2 = r;
+            r2.Offset(p);
+            return r2;
+        }
+
         public static Point Center(this Rectangle r)
         {
             return new Point(r.Left + r.Width / 2, r.Top + r.Bottom / 2);

@@ -13,5 +13,6 @@ namespace Kitsune
     public interface IProcDefBit
     {
         IProcDefBit DeepClone();
+        string ArgBitString();
     }
 }

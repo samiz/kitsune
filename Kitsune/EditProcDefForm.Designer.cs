@@ -145,6 +145,7 @@
             this.Name = "EditProcDefForm";
             this.Text = "Define a new procedure";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.EditProcDef_FormClosed);
+            this.Load += new System.EventHandler(this.EditProcDefForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

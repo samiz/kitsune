@@ -150,6 +150,10 @@ namespace Kitsune
             {
                 return BlockAttributes.Hat;
             }
+            else if (block is VarAccessBlock)
+            {
+                return BlockAttributes.Report;
+            }
             throw new NotImplementedException();
         }
         internal DataType Typeof(IBlock block)
@@ -158,6 +162,11 @@ namespace Kitsune
             {
                 InvokationBlock invokation = block as InvokationBlock;
                 return blockInfos[invokation.Text].ReturnType;
+            }
+            else if (block is VarAccessBlock)
+            {
+                VarAccessBlock v = (VarAccessBlock)block;
+                return v.Declaration.Type;
             }
             return DataType.Script;
         }

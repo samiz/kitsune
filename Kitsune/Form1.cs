@@ -533,9 +533,13 @@ namespace Kitsune
         private void defineNewProcToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EditProcDefForm form = new EditProcDefForm();
-            form.SetController(controller.NewProcDef(() => form.MakeTextBox(), form.GetEraseButton()));
+            EditProcDefController subController = controller.NewProcDef(() => form.MakeTextBox(), form.GetEraseButton());
+            form.SetController(subController);
             form.StartPosition = FormStartPosition.CenterParent;
-            form.ShowDialog();
+            if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                controller.DefineNewProc(subController.Model, "My blocks");
+            }
         }
 
       

@@ -95,5 +95,10 @@ namespace Kitsune
         {
             return btnErase;
         }
+
+        private void EditProcDefForm_Load(object sender, EventArgs e)
+        {
+            controller.AddText();
+        }
     }
 }

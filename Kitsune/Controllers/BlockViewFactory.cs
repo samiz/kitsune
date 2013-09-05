@@ -61,7 +61,7 @@ namespace Kitsune
 
         public IBlockView ViewFromBlockStack(BlockStack blocks)
         {
-            IEnumerable<IBlockView> stack = blocks.Select(b => ViewFromBlock((InvokationBlock)b));
+            IEnumerable<IBlockView> stack = blocks.Select(b => ViewFromBlock(b));
             BlockStackView ret = new BlockStackView(blocks, stack);
             blocks.OnInsert += new BlockStackInsertEvent(blockstack_OnInsert);
             return ret;

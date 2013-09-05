@@ -132,11 +132,11 @@ namespace Kitsune
             else
             {
                 bool connectAbove = false, connectBelow = false;
-                IInvokationBlockView first = (IInvokationBlockView)elements[0];
-                IInvokationBlockView last = (IInvokationBlockView)elements.Last();
+                IStackableBlockView first = (IStackableBlockView)elements[0];
+                IStackableBlockView last = (IStackableBlockView)elements.Last();
 
-                connectAbove = first.Attribute != BlockAttributes.Hat;
-                connectBelow = last.Attribute != BlockAttributes.Cap;
+                connectAbove = first.EffectiveAttribute()!= BlockAttributes.Hat;
+                connectBelow = last.EffectiveAttribute()!= BlockAttributes.Cap;
 
                 if(connectAbove)
                     yield return new DropRegion(DropType.Above, new Rectangle(origin.Offseted(0, -2), new Size(_cached.Width, 5)), this);
