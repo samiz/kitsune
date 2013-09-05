@@ -22,7 +22,6 @@ namespace Kitsune
         // long ticks = 0;
         public string status = "";
         private Palette palette;
-        public Rectangle paletteRect;
         public IBlockView Marked { get; set; }
 
         public CanvasView(Graphics graphics, Size canvasSize, 
@@ -43,7 +42,7 @@ namespace Kitsune
             bg.Dispose();
             this.backgroundBrush = new TextureBrush(bg2);
             this.palette = palette;
-            paletteRect = new Rectangle(10, 10, palette.Bitmap.Width, palette.Bitmap.Height);
+            palette.Location = new Point(10, 10);
             // InitBackGround(canvasSize);
         }
         internal void Resize(Size canvasSize, Graphics g)
@@ -51,7 +50,6 @@ namespace Kitsune
             this.graphics.Dispose();
             this.graphics = g;
             this.canvas = new Bitmap(canvasSize.Width, canvasSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
-            paletteRect = new Rectangle(10, 10, palette.Bitmap.Width, palette.Bitmap.Height);
 
         }
         public void SetDropRegion(DropRegion dr)
@@ -118,9 +116,9 @@ namespace Kitsune
                 //g.DrawImage(background, invalidated, invalidated, GraphicsUnit.Pixel);
                 g.FillRectangle(backgroundBrush, invalidated);
 
-                if (paletteRect.IntersectsWith(invalidated))
+                if (PaletteRect.IntersectsWith(invalidated))
                 {
-                    g.DrawImageUnscaled(palette.Bitmap, paletteRect.Location);
+                    g.DrawImageUnscaled(palette.Bitmap, PaletteRect.Location);
                 }
                 foreach (KeyValuePair<IBlockView, Point> kv in subViews)
                 {
@@ -170,5 +168,13 @@ namespace Kitsune
 
         public DropRegion DropRegion { get { return CurrentDropRegion; } }
 
+
+        public Rectangle PaletteRect 
+        {
+            get
+            {
+                return new Rectangle(palette.Location, palette.Size);
+            }
+        }
     }
 }

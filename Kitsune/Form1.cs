@@ -36,6 +36,7 @@ namespace Kitsune
             document.TitleChange += new TitleChangeEvent(document_TitleChange);
             document.SetTitle();
             RegisterMethods();
+            controller.InitPalette(); // after methods are registered
 
             vm = new VM.VM();
             compiler = new Compiler(vm, controller.GetBlockSpace());

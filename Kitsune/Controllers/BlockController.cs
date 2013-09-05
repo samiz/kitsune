@@ -57,8 +57,20 @@ namespace Kitsune
             blockSpace.OnTopLevelDeleted += new TopLevelEvent(blockSpace_OnTopLevelDeleted);
             blockSpace.OnTopLevelMoved += new TopLevelEvent(blockSpace_OnTopLevelMoved);
 
-            //palette = new Palette(new Size(60, canvasSize.Height - 20));
-            palette = new Palette(new Size(canvasSize.Width- 20, 60), textMetrics, textFont);
+            palette = new Palette(new Size(canvasSize.Width - 20, 60), textMetrics, textFont);
+            palette.Modified += new PaletteModifiedEvent(palette_Modified);
+
+            canvasView = new CanvasView(textMetrics, canvasSize, allViews, DropRegions, textFont, palette);
+            this.canvasSize = canvasSize;
+            state = CanvasState.Ready;
+            viewFactory = new BlockViewFactory(textMetrics, textFont, blockSpace, blockViews,
+                ()=>Modified(this));
+
+            this.textBoxMaker = textBoxMaker;
+        }
+
+        public void InitPalette()
+        {
             palette.Init(new ToolPrototype[] { 
                 tool("if|if % then % else %", "control", new TextBlock("0"), new BlockStack(), new BlockStack()),
                 tool("repeat|repeat % times %", "control", new TextBlock("10"), new BlockStack()),
@@ -78,22 +90,15 @@ namespace Kitsune
                 tool("sin|sin %", "math", new TextBlock("60")),
                 tool("flag|when _flag_ clicked", "control"), 
                 tool("stopScript|stop script", "control")}
-                , Path.Combine(Application.StartupPath, "./Assets/Tools"), "motion");
+                , Path.Combine(Application.StartupPath, "./Assets/Tools"), "motion", blockSpace);
 
             palette.LayoutTools("motion");
-            palette.Modified += new PaletteModifiedEvent(palette_Modified);
-            canvasView = new CanvasView(textMetrics, canvasSize, allViews, DropRegions, textFont, palette);
-            this.canvasSize = canvasSize;
-            state = CanvasState.Ready;
-            viewFactory = new BlockViewFactory(textMetrics, textFont, blockSpace, blockViews,
-                ()=>Modified(this));
 
-            this.textBoxMaker = textBoxMaker;
+
         }
-
-        void palette_Modified(object sender)
+        void palette_Modified(object sender, Rectangle oldPaletteRect)
         {
-            Update(canvasView.paletteRect);
+            Update(Rectangle.Union(canvasView.PaletteRect, oldPaletteRect));
         }
         private void ResetBlockSpace()
         {
@@ -268,10 +273,10 @@ namespace Kitsune
             }
             else if (state == CanvasState.Ready)
             {
-                if (canvasView.paletteRect.Contains(p))
+                if (canvasView.PaletteRect.Contains(p))
                 {
-                    int x = canvasView.paletteRect.Left;
-                    int y = canvasView.paletteRect.Top;
+                    int x = canvasView.PaletteRect.Left;
+                    int y = canvasView.PaletteRect.Top;
                     IBlock[] defaultArgs;
                     string funcName = palette.HitTest(p.Offseted(-x, -y), out defaultArgs);
                     if (funcName != "")

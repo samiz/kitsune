@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="Models\IProcDefBit.cs" />
     <Compile Include="Models\ITextualBlock.cs" />
+    <Compile Include="Views\EditableVarDefView.cs" />
     <Compile Include="Views\EditableLabelView.cs" />
     <Compile Include="Views\ITextualView.cs" />
     <Compile Include="Models\IVarBlock.cs" />

@@ -124,9 +124,15 @@ namespace Kitsune
                 if (bit is VarDefBlock)
                 {
                     VarDefBlock vb = (VarDefBlock)bit;
-                    subContent.Add(ViewFromBlock(vb));
+                    EditableVarDefView vv = new EditableVarDefView(vb, 
+                        MakeTextBitBitmap(vb.Name, height),
+                        varb_parts, 
+                        textMetrics, textFont);
+                    blockViews[vb] = vv;
+                    subContent.Add(vv);
                     trueArgs[i] = true;
                     argTypes[i] = vb.Type;
+                    vb.TextChanged += new VarDefBlockTextChangedEvent(ProcDef_FormalParamTextChanged);
                 }
                 else
                 {
@@ -163,7 +169,7 @@ namespace Kitsune
         private int ArgBitTextHeight(IProcDefBit bb)
         {
             if (bb is VarDefBlock)
-                return 0;
+                return (int)textMetrics.MeasureString(((VarDefBlock)bb).Text, textFont).Height; ;
             return (int) textMetrics.MeasureString(((ProcDefTextBit)bb).Text, textFont).Height;
         }
 
@@ -303,6 +309,14 @@ namespace Kitsune
             ev.SetBitmap(bmp);
         }
 
+        void ProcDef_FormalParamTextChanged(object sender, string newText)
+        {
+            VarDefBlock b = (VarDefBlock)sender;
+            EditableVarDefView v = (EditableVarDefView) ViewFromBlock(b);
+            int height = ArgBitTextHeight(b);
+            Bitmap bmp = MakeTextBitBitmap(newText, height);
+        }
+
         void ProcDefBlock_FormalParamChanged(object sender, int index, IProcDefBit newBit)
         {
             IBlockView v = ViewFromBlock((VarDefBlock) newBit);
@@ -318,8 +332,16 @@ namespace Kitsune
             DataType type = DataType.Invalid;
             if (newBit is VarDefBlock)
             {
-                type = ((VarDefBlock)newBit).Type;
-                v.AddFormalBit(ViewFromBlock((VarDefBlock)newBit), type);
+                VarDefBlock vb = (VarDefBlock)newBit;
+                type = (vb).Type;
+                int height = ArgBitTextHeight(newBit);
+                EditableVarDefView vv = new EditableVarDefView(vb,
+                       MakeTextBitBitmap(vb.Name, height),
+                       varb_parts,
+                       textMetrics, textFont);
+                blockViews[vb] = vv;
+                vb.TextChanged += new VarDefBlockTextChangedEvent(ProcDef_FormalParamTextChanged);
+                v.AddFormalBit(vv, type);
             }
             else
             {
