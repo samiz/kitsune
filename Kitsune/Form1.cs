@@ -166,6 +166,55 @@ namespace Kitsune
                 return result;
             });
 
+            vm.RegisterPrimitve("cos", delegate(object[] args)
+            {
+                double angle = (double)args[0];
+                angle = angle * Math.PI / 180.0;
+                double result = Math.Cos(angle);
+                return result;
+            });
+
+            vm.RegisterPrimitve("tan", delegate(object[] args)
+            {
+                double angle = (double)args[0];
+                angle = angle * Math.PI / 180.0;
+                double result = Math.Tan(angle);
+                return result;
+            });
+
+            vm.RegisterPrimitve("asin", delegate(object[] args)
+            {
+                double angle = (double)args[0];
+                angle = angle * Math.PI / 180.0;
+                double result = Math.Asin(angle);
+                return result;
+            });
+
+            vm.RegisterPrimitve("acos", delegate(object[] args)
+            {
+                double angle = (double)args[0];
+                angle = angle * Math.PI / 180.0;
+                double result = Math.Acos(angle);
+                return result;
+            });
+
+            vm.RegisterPrimitve("atan", delegate(object[] args)
+            {
+                double angle = (double)args[0];
+                angle = angle * Math.PI / 180.0;
+                double result = Math.Atan(angle);
+                return result;
+            });
+
+
+            vm.RegisterPrimitve("sqrt", delegate(object[] args)
+            {
+                double angle = (double)args[0];
+                angle = angle * Math.PI / 180.0;
+                double result = Math.Sqrt(angle);
+                return result;
+            });
+
             vm.RegisterPrimitve("doNothing", delegate(object[] args)
             {
                 return null; 
@@ -175,9 +224,9 @@ namespace Kitsune
        private void PrepareCompiler(Compiler compiler)
        {
            compiler.PrimitiveAliases["move % steps"] = "fd";
+           compiler.PrimitiveAliases["move to x: % y: %"] = "gotoxy";
            compiler.PrimitiveAliases["turn % degrees right"] = "rt";
            compiler.PrimitiveAliases["turn % degrees left"] = "lt";
-           compiler.PrimitiveAliases["go to x: % y: %"] = "gotoxy";
            
            compiler.PrimitiveAliases["% + %"] = "+";
            compiler.PrimitiveAliases["% - %"] = "-";
@@ -185,6 +234,12 @@ namespace Kitsune
            compiler.PrimitiveAliases["% / %"] = "/";
            compiler.PrimitiveAliases["random from % to %"] = "random";
            compiler.PrimitiveAliases["sin %"] = "sin";
+           compiler.PrimitiveAliases["cos %"] = "cos";
+           compiler.PrimitiveAliases["tan %"] = "tan";
+           compiler.PrimitiveAliases["asin %"] = "asin";
+           compiler.PrimitiveAliases["acos %"] = "acos";
+           compiler.PrimitiveAliases["atan %"] = "atan";
+           compiler.PrimitiveAliases["sqrt %"] = "sqrt";
            
            compiler.PrimitiveAliases["say %"] = "say";
            compiler.PrimitiveAliases["when _flag_ clicked"] = "doNothing";
@@ -204,11 +259,18 @@ namespace Kitsune
             controller.RegisterSystemMethod("turn % degrees right", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Number });
             controller.RegisterSystemMethod("turn % degrees left", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Number });
             controller.RegisterSystemMethod("move to x: % y: %", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Number, DataType.Number });
-
+            
             controller.RegisterSystemMethod("say %", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Object});
             controller.RegisterSystemMethod("say % for % seconds", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Object, DataType.Number});
 
             controller.RegisterSystemMethod("sin %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number });
+            controller.RegisterSystemMethod("cos%", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number });
+            controller.RegisterSystemMethod("tan %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number });
+            controller.RegisterSystemMethod("sqrt %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number });
+            controller.RegisterSystemMethod("asin %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number });
+            controller.RegisterSystemMethod("acos%", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number });
+            controller.RegisterSystemMethod("atan %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number });
+
             controller.RegisterSystemMethod("% + %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number, DataType.Number });
             controller.RegisterSystemMethod("% - %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number, DataType.Number });
             controller.RegisterSystemMethod("% * %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number, DataType.Number });

@@ -152,8 +152,8 @@ namespace Kitsune.Stage
             Rectangle r1 = s.Bounds;
             func(s);
             Rectangle r2 = s.Bounds;
-            //Redraw(Rectangle.Union(r1, r2));
-            Update(Rectangle.Union(r1, r2));
+            Redraw(Rectangle.Union(r1, r2));
+            //Update(Rectangle.Union(r1, r2));
         }
 
         public Rectangle Bounds 

@@ -47,7 +47,14 @@ namespace Kitsune
         Graphics textMetrics;
         Font textFont, tabFont;
         private string currentCategory;
+
         bool needScroll = false;
+        Rectangle leftScrollRect = new Rectangle(), rightScrollRect = new Rectangle();
+        List<int> scrollPositions = new List<int>();
+        List<ToolSpec> currentTab = new List<ToolSpec>();
+        int currentScrollPosition;
+        int tabWidth, tabHeight;
+
         public Palette(Size size, Graphics textMetrics, Font textFont)
         {
             initialSize = size;
@@ -88,28 +95,38 @@ namespace Kitsune
         public void LayoutTools(string category)
         {
             needScroll = false;
-            int tabHeight = categories.Max(s => (int)textMetrics.MeasureString(s, textFont).Height) + tabPadding * 2;
-            int tabWidth = categories.Sum(s => (int)textMetrics.MeasureString(s, textFont).Width)
+            currentScrollPosition = 0;
+            scrollPositions.Clear();
+            scrollPositions.Add(0);
+            currentTab.Clear();
+            tabHeight = categories.Max(s => (int)textMetrics.MeasureString(s, textFont).Height) + tabPadding * 2;
+            tabWidth = categories.Sum(s => (int)textMetrics.MeasureString(s, textFont).Width)
                 + (tabPadding * 2 + tabSpacing) * categories.Count;
             int maxRowHeight = 0;
 
-            int x = 5 + scrollArrowWidth, y = 5 + tabHeight + 5;
+            const int initialX = 5 + scrollArrowWidth;
+
+            int x = initialX;
+            int y = y = 5 + tabHeight + 5;
             int toolAreaWidth = initialSize.Width - scrollArrowWidth * 2;
+            int i = 0;
             foreach (ToolSpec spec in tools)
             {
                 if (!spec.category.Contains(category))
                     continue;
                 Size toolSize = spec.bmp.Size;
-
+                currentTab.Add(spec);
                 if (x + toolSize.Width >= toolAreaWidth)
                 {
-                    x = 0;
-                    y += maxRowHeight;
+                    x = initialX;
+                    //y += maxRowHeight;
                     needScroll = true;
+                    scrollPositions.Add(i);
                 }
                 spec.rectangle = new Rectangle(x, y, toolSize.Width, toolSize.Height);
                 x += toolSize.Width + toolSpacing;
                 maxRowHeight = Math.Max(maxRowHeight, toolSize.Height);
+                i++;
             }
             bitmap = new Bitmap(initialSize.Width, y + maxRowHeight + 10 + tabHeight, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             UpdateBitmap(category, tabWidth, tabHeight);
@@ -119,7 +136,7 @@ namespace Kitsune
         {
             string ret = "";
             int i = 0;
-            
+
             foreach (Rectangle r in tabRects)
             {
                 if (r.Contains(p))
@@ -136,9 +153,31 @@ namespace Kitsune
                 }
                 i++;
             }
-            foreach (ToolSpec ts in tools)
+            if (needScroll)
             {
-                if (ts.category == currentCategory && ts.rectangle.Contains(p))
+
+                //textMetrics.FillRectangle(Brushes.Fuchsia, leftScrollRect.Offseted(Location.X, Location.Y));
+                if (leftScrollRect.Contains(p))
+                {
+                    ScrollBig(-1);
+                    defaultArgs = null;
+                    return "";
+                }
+                // textMetrics.FillRectangle(Brushes.Fuchsia, rightScrollRect.Offseted(Location.X, Location.Y));
+
+                if (rightScrollRect.Contains(p))
+                {
+                    ScrollBig(1);
+                    defaultArgs = null;
+                    return "";
+                }
+            }
+            int startPos = ScrollPositionStart();
+            int endPos = ScrollPositionEnd();
+            for (i = startPos; i < endPos; ++i)
+            {
+                ToolSpec ts = currentTab[i];
+                if (ts.rectangle.Contains(p))
                 {
                     defaultArgs = ts.defaultArgs;
                     return ts.funcName;
@@ -146,6 +185,21 @@ namespace Kitsune
             }
             defaultArgs = new IBlock[] { };
             return ret;
+        }
+
+        private void ScrollBig(int p)
+        {
+            int oldScrollPosition = currentScrollPosition;
+
+            currentScrollPosition += p;
+            if (currentScrollPosition < 0 || currentScrollPosition == scrollPositions.Count)
+                currentScrollPosition = oldScrollPosition;
+
+            if (currentScrollPosition != oldScrollPosition)
+            {
+                UpdateBitmap(currentCategory, tabWidth, tabHeight);
+                Modified(this, new Rectangle(this.Location, this.Size));
+            }
         }
 
         public void UpdateBitmap(string category, int tabWidth, int tabHeight)
@@ -184,10 +238,11 @@ namespace Kitsune
                     catX += tabSpacing + r.Width;
 
                 }
-                foreach (ToolSpec ts in tools)
+                int startPos = ScrollPositionStart();
+                int endPos = ScrollPositionEnd();
+                for (int i = startPos; i < endPos; ++i)
                 {
-                    if (!ts.category.Contains(category))
-                        continue;
+                    ToolSpec ts = currentTab[i];
                     Rectangle r = ts.rectangle;
                     g.DrawImageUnscaled(ts.bmp, r.Location);
                 }
@@ -208,6 +263,7 @@ namespace Kitsune
                     new Point(5 + scrollArrowWidth/2, tabHeight + 5),
                     new Point(5 + scrollArrowWidth/2, tabHeight + initialSize.Height-5),
                     new Point(5, tabHeight + initialSize.Height/2 -5),};
+                        leftScrollRect = new Rectangle(5, tabHeight + 5, scrollArrowWidth, initialSize.Height - 10);
 
                         g.FillPolygon(Brushes.LightGray, scroll1);
                         g.DrawPolygon(p, scroll1);
@@ -217,12 +273,24 @@ namespace Kitsune
                     new Point(initialSize.Width -5 - scrollArrowWidth/2, tabHeight + initialSize.Height-5),
                     new Point(initialSize.Width-5, tabHeight + initialSize.Height/2 -5),};
 
+                        rightScrollRect = new Rectangle(initialSize.Width - 5 - scrollArrowWidth,
+                            tabHeight + 5, scrollArrowWidth, initialSize.Height - 10);
                         g.FillPolygon(Brushes.LightGray, scroll2);
                         g.DrawPolygon(p, scroll2);
                     }
                 }
-                
+
             }
+        }
+
+        private int ScrollPositionEnd()
+        {
+            return currentScrollPosition + 1 < scrollPositions.Count ? scrollPositions[currentScrollPosition + 1] : currentTab.Count;
+        }
+
+        private int ScrollPositionStart()
+        {
+            return scrollPositions[currentScrollPosition];
         }
 
         internal void Reloadtools()
@@ -236,7 +304,7 @@ namespace Kitsune
             get
             {
                 if (bitmap == null)
-                    return new Size(10,10);
+                    return new Size(10, 10);
                 else
                     return bitmap.Size;
             }
