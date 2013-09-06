@@ -22,5 +22,9 @@ namespace Kitsune.VM
                 }
             }
         }
+        public override string ToString()
+        {
+            return Instructions.Select(i => i.ToString()).Combine("\n");
+        }
     }
 }

@@ -47,7 +47,7 @@ namespace Kitsune
                 Attach(value, index);
             }
         }
-
+        public int Count { get { return Blocks.Count; } }
         private void Detach(IBlock old)
         {
             old.ParentRelationship = new ParentRelationship();

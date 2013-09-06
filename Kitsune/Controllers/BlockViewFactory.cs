@@ -168,9 +168,14 @@ namespace Kitsune
 
         private int ArgBitTextHeight(IProcDefBit bb)
         {
+            string toMeasure;
             if (bb is VarDefBlock)
-                return (int)textMetrics.MeasureString(((VarDefBlock)bb).Text, textFont).Height; ;
-            return (int) textMetrics.MeasureString(((ProcDefTextBit)bb).Text, textFont).Height;
+                toMeasure = ((VarDefBlock)bb).Text;
+            else
+                toMeasure = ((ProcDefTextBit)bb).Text;
+            if(toMeasure == "")
+                toMeasure = "X";
+            return (int) textMetrics.MeasureString(toMeasure, textFont).Height;
         }
 
         public IBlockView ViewFromInvokationBlock(InvokationBlock b, BlockAttributes attribute)

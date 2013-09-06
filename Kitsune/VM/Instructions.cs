@@ -17,6 +17,10 @@ namespace Kitsune.VM
         {
             p.operandStack.Push(value);
         }
+        public override string ToString()
+        {
+            return string.Format("push {0}", value);
+        }
     }
     class PushLocal : Instruction
     {
@@ -30,6 +34,10 @@ namespace Kitsune.VM
         {
             p.operandStack.Push(p.callStack.Peek().Locals[name]);
         }
+        public override string ToString()
+        {
+            return string.Format("pushl {0}", name);
+        }
     }
     class Discard : Instruction
     {
@@ -41,6 +49,10 @@ namespace Kitsune.VM
         public override void Run(Process p)
         {
             p.operandStack.Pop();
+        }
+        public override string ToString()
+        {
+            return string.Format("discard");
         }
     }
     class PopLocal: Instruction
@@ -55,6 +67,10 @@ namespace Kitsune.VM
         {
             object v = p.operandStack.Pop();
             p.callStack.Peek().Locals[name ] = v;
+        }
+        public override string ToString()
+        {
+            return string.Format("popl {0}", name);
         }
     }
     class ApplyPrim : Instruction
@@ -76,6 +92,10 @@ namespace Kitsune.VM
             }
             p.operandStack.Push(primitive(args));
         }
+        public override string ToString()
+        {
+            return string.Format("applyprim {0},[closure]", arity);
+        }
     }
     class Stop : Instruction
     {
@@ -86,6 +106,10 @@ namespace Kitsune.VM
         {
             p.timeSlice = 0;
             vm.Stop();
+        }
+        public override string ToString()
+        {
+            return string.Format("stop");
         }
     }
     class JumpIfNot : Instruction
@@ -105,6 +129,10 @@ namespace Kitsune.VM
                 f.IP = f.Method.Labels[label];
             }
         }
+        public override string ToString()
+        {
+            return string.Format("jnot {0}", label);
+        }
     }
     class Jump : Instruction
     {
@@ -120,6 +148,10 @@ namespace Kitsune.VM
             Frame f = p.callStack.Peek();
             f.IP = f.Method.Labels[label];
         }
+        public override string ToString()
+        {
+            return string.Format("jmp {0}", label);
+        }
     }
     class Label : Instruction
     {
@@ -134,6 +166,10 @@ namespace Kitsune.VM
         {
             
         }
+        public override string ToString()
+        {
+            return string.Format("label {0}", label);
+        }
     }
     class Call : Instruction
     {
@@ -147,6 +183,29 @@ namespace Kitsune.VM
         public override void Run(Process p)
         {
              p.Call(callee);
+        }
+        public override string ToString()
+        {
+            return string.Format("call [method]");
+        }
+    }
+    class CallNamed : Instruction
+    {
+        public string calleeName;
+
+        public CallNamed(VM vm, string calleeName)
+            : base(vm)
+        {
+            this.calleeName = calleeName;
+        }
+        public override void Run(Process p)
+        {
+            Method m = vm.GetMethod(calleeName);
+            p.Call(m);
+        }
+        public override string ToString()
+        {
+            return string.Format("calln {0}", calleeName);
         }
     }
     class Ret : Instruction
@@ -165,6 +224,10 @@ namespace Kitsune.VM
                 p.State = ProcessState.Exited;
             }
         }
+        public override string ToString()
+        {
+            return string.Format("ret");
+        }
     }
     class Wait : Instruction
     {
@@ -178,6 +241,10 @@ namespace Kitsune.VM
             double duration = (double) p.operandStack.Pop();
             vm.Sleepify(p, (long) duration);
             p.timeSlice = 0;    
+        }
+        public override string ToString()
+        {
+            return string.Format("wait}");
         }
     }
 }

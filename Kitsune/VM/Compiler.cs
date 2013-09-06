@@ -18,19 +18,46 @@ namespace Kitsune.VM
             this.vm = vm;
             labelCount = varCount = 0;
         }
+
+        
+        public Method DefineMethod(ProcDefBlock b, BlockStack stack)
+        {
+            // 'stack' is a BlockStack whose first element (#0) is a ProcDefBlock, the same as 'b'
+
+            Method ret = new Method();
+            List<Instruction> instructions = new List<Instruction>();
+            string[] argNames = b.GetArgNames();
+            for (int i = 0; i < argNames.Length; ++i)
+            {
+                instructions.Add(new PopLocal(vm, argNames[i]));
+            }
+            for(int i=1; i<stack.Count; ++i)
+                instructions.AddRange(CompileBlockToInstructions(stack[i], false));
+            instructions.Add(new Push(vm, null));
+            instructions.Add(new Ret(vm));
+            ret.Instructions = instructions.ToArray();
+            ret.Arity = argNames.Length;
+            return ret;
+        }
         public Method Compile(IBlock b, bool mainProgram)
         {
-            List<Instruction> instructions = new List<Instruction>();
-            Dictionary<string, int> labels = new Dictionary<string,int>();
-            CompileExpression(b, DataType.Script, instructions, labels);
-
-            if (mainProgram)
-                instructions.Add(new Stop(vm));
+            List<Instruction> instructions = CompileBlockToInstructions(b, mainProgram);
             Method ret = new Method();
             ret.Instructions = instructions.ToArray();
             ret.Arity = 0;
             ret.PrepareLabels();
             return ret;
+        }
+
+        private List<Instruction> CompileBlockToInstructions(IBlock b, bool mainProgram)
+        {
+            List<Instruction> instructions = new List<Instruction>();
+            Dictionary<string, int> labels = new Dictionary<string, int>();
+            CompileExpression(b, DataType.Script, instructions, labels);
+
+            if (mainProgram)
+                instructions.Add(new Stop(vm));
+            return instructions;
         }
 
         private void CompileExpression(IBlock b, DataType type, List<Instruction> instructions, Dictionary<string, int> labels)
@@ -47,6 +74,16 @@ namespace Kitsune.VM
             {
                 CompileTextBlock(b as TextBlock, type, instructions, labels);
             }
+            else if (b is VarAccessBlock)
+            {
+                CompileVarAccessBlock(b as VarAccessBlock, type, instructions, labels);
+            }
+        }
+
+        private void CompileVarAccessBlock(VarAccessBlock var, DataType type, List<Instruction> instructions, Dictionary<string, int> labels)
+        {
+            // todo: add type checking?
+            instructions.Add(new PushLocal(vm, var.Name));
         }
 
         private void CompileTextBlock(TextBlock b, DataType type, List<Instruction> instructions, Dictionary<string, int> labels)
@@ -162,8 +199,12 @@ namespace Kitsune.VM
         private Instruction GenerateInvokation(string p, int arity)
         {
             if (PrimitiveAliases.ContainsKey(p))
-                return new ApplyPrim(vm, arity,(Func<object[], object>) vm.GetPrimitive(PrimitiveAliases[p]));
-            throw new ArgumentException("Can't find function " + p);
+                return new ApplyPrim(vm, arity, (Func<object[], object>)vm.GetPrimitive(PrimitiveAliases[p]));
+            else if (vm.HasMethod(p))
+                return new Call(vm, vm.GetMethod(p));
+            else
+                return new CallNamed(vm, p);
+            //throw new ArgumentException("Can't find function " + p);
         }
 
         private void CompileBlockStack(BlockStack b, List<Instruction> instructions, Dictionary<string, int> labels)

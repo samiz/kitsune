@@ -445,7 +445,7 @@ namespace Kitsune
             tb.TextChanged += new EventHandler(argTextBox_TextChanged);
             tb.KeyDown += new KeyEventHandler(argTextBox_KeyDown);
             tb.Show();
-            tb.Focus();
+            tb.Select();
             state = CanvasState.TextEditing;
             
         }

@@ -116,5 +116,19 @@ namespace Kitsune
                 ret.Add(run);
             return ret.ToArray();
         }
+        public static string Combine(this IEnumerable<string> list, string separator)
+        {
+            StringBuilder sb = new StringBuilder();
+            IEnumerator<string> enumerator = list.GetEnumerator();
+            bool goon = enumerator.MoveNext();
+            while(goon)
+            {
+                sb.Append(enumerator.Current);
+                goon = enumerator.MoveNext();
+                if (goon)
+                    sb.Append(separator);
+            }
+            return sb.ToString();
+        }
     }
 }

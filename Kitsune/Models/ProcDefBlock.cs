@@ -54,6 +54,20 @@ namespace Kitsune
             }
             return ret.ToArray();
         }
+
+        internal string[] GetArgNames()
+        {
+            List<string> ret = new List<string>();
+            foreach (IProcDefBit bit in Bits)
+            {
+                if (bit is VarDefBlock)
+                {
+                    VarDefBlock vdb = bit as VarDefBlock;
+                    ret.Add(vdb.Name);
+                }
+            }
+            return ret.ToArray();
+        }
         public void SetBody(IBlock body)
         {
             this.body = body;

@@ -15,6 +15,21 @@ namespace Kitsune.VM
         List<Process> timerWaiting = new List<Process>();
         Process runningNow;
 
+        internal void DefineMethod(string name, Method m)
+        {
+            methods[name] = m; 
+        }
+
+        internal bool HasMethod(string p)
+        {
+            return methods.ContainsKey(p);
+        }
+
+        internal Method GetMethod(string p)
+        {
+            return methods[p];
+        }
+
         public void RegisterPrimitve(string name, Func<object[], object> primitive)
         {
             primitives[name] = primitive;

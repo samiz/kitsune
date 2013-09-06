@@ -13,5 +13,6 @@ namespace Kitsune.VM
             this.vm = vm;
         }
         public abstract void Run(Process p);
+        public override abstract string ToString();
     }
 }

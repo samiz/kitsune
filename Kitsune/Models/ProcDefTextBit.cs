@@ -6,6 +6,7 @@ using System.Text;
 namespace Kitsune
 {
     public delegate void ProcDefTextBitTextChangedEvent(object sender, string newText);
+    [Serializable]
     public class ProcDefTextBit : IProcDefBit, ITextualBlock
     {
         [field: NonSerialized] public event ProcDefTextBitTextChangedEvent TextChanged;

@@ -364,21 +364,34 @@ namespace Kitsune
 
         private void Run()
         {
+            // Assume only one block with 'when flag clicked' for now
+            IBlock mainBlock = null;
             foreach (IBlock b in controller.GetTopLevelBlocks())
             {
                 if (b is BlockStack)
                 {
-                    IBlock s = ((BlockStack)b)[0];
+                    BlockStack stack = ((BlockStack)b);
+                    IBlock s = stack[0];
                     if (s is InvokationBlock)
                     {
                         InvokationBlock ib = (InvokationBlock)s;
                         if (ib.Text == "when _flag_ clicked")
                         {
-                            Run(b);
-                            return;
+                            mainBlock = b;
                         }
                     }
+                    else if (s is ProcDefBlock)
+                    {
+                        ProcDefBlock pdb = (ProcDefBlock)s;
+                        Method m = compiler.DefineMethod(pdb, stack);
+                        vm.DefineMethod(pdb.GetMethodString(), m);
+                    }
                 }
+                
+            }
+            if (mainBlock != null)
+            {
+                Run(mainBlock);
             }
         }
 

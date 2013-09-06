@@ -24,7 +24,7 @@ namespace Kitsune
         string originalEditedText;
         TextBox editedTextBox;
         Func<TextBox> textBoxMaker;
-        Rectangle debugRect = new Rectangle(), debugRect2 = new Rectangle();
+        //Rectangle debugRect = new Rectangle(), debugRect2 = new Rectangle();
         Button eraseButton;
 
         Dictionary<string, int> defaultArgNames = new Dictionary<string, int>();
@@ -41,6 +41,15 @@ namespace Kitsune
             this.eraseButton.Click += new EventHandler(eraseButton_Click);
             this.Changed += delegate(object sender) { };
             State = EditState.Ready;
+
+            // I wish the view was dynamically centered, but there's some mismatch
+            // between a label's textbox and the place where the text is drawn
+            // for now we hide it by not constantly moving the view
+            // strangely, the mistmatch disappears (text is drawn in the right place)
+            // when view.RelativePos is not moved anymore. hmm...
+            // Point origin = size.Center(b.Size);
+            Point origin = new Point(15, 15);
+            view.RelativePos = origin;
         }
 
         public void Done()
@@ -57,15 +66,7 @@ namespace Kitsune
             g.Clear(Color.WhiteSmoke);
             Bitmap b = view.Assemble();
             
-            // I wish it were the center, but there's some mismatch
-            // between a label's textbox and the place where the text is drawn
-            // for now we hide it by not constantly moving the view
-            // strangely, the mistmatch disappears (text is drawn in the right place)
-            // when view.RelativePos is not moved anymore. hmm...
-            // Point origin = size.Center(b.Size);
-            Point origin = new Point(15, 15);
-            view.RelativePos = origin;
-            g.DrawImageUnscaled(b, origin);
+            g.DrawImageUnscaled(b, view.RelativePos);
             //g.DrawRectangle(Pens.Teal, debugRect);
             //g.DrawRectangle(Pens.Fuchsia, debugRect2);
         }
@@ -80,7 +81,8 @@ namespace Kitsune
 
         public void AddText()
         {
-            string text = GenerateNewName("label");
+            //string text = GenerateNewName("label");
+            string text = "";
             ProcDefTextBit t = new ProcDefTextBit(text);
             t.ParentRelationship = new ParentRelationship(ParentRelationshipType.None, model, -1);
             model.AddBit(t);
@@ -147,7 +149,7 @@ namespace Kitsune
             tb.KeyDown += new KeyEventHandler(argTextBox_KeyDown);
             
             tb.Show();
-            tb.Focus();
+            tb.Select();
             ShowEraseButton(v);
             State = EditState.TextEditing;
         }
@@ -181,18 +183,22 @@ namespace Kitsune
             TextBox tb = (TextBox)sender;
             string newStr = tb.Text;
             editedTextModel.SetText(newStr);
-            
+             
             Changed(this);
 
-            // since the view is always centered, changed could move the view
+            // Since the view is always centered, changed could move the view
             // so we move the textbox accordingly
             // PositionTextBox(tb, editedTextView.AbsoluteBounds());
 
+            tb.Size = editedTextView.Assemble().Size;
+            
+            /*
             using (Graphics g = tb.Parent.CreateGraphics())
             {
                 debugRect = tb.Bounds.Offseted(0, 50);
                 debugRect2 = editedTextView.AbsoluteBounds().Offseted(0, 60);
             }
+             //*/
         }
 
         private void PositionTextBox(TextBox tb, Rectangle r)

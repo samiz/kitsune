@@ -98,7 +98,9 @@ namespace Kitsune
 
         private void EditProcDefForm_Load(object sender, EventArgs e)
         {
+            // Add an initial label for the proc name
             controller.AddText();
+            
         }
     }
 }
