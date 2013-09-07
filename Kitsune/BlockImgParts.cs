@@ -42,7 +42,6 @@ namespace Kitsune
                 x = 0;
                 for (int j = 0; j < asArray[i].Length; ++j)
                 {
-                    
                     g.DrawImageUnscaled(asArray[i][j], p.Offseted(x,y));
                     //g.DrawString(string.Format("[{0}][{1}]", i, j), f, Brushes.Black, p.Offseted(x, y));
                     x += asArray[i][j].Width + 5;
@@ -62,6 +61,11 @@ namespace Kitsune
                |    |      |     |
                +----+------+-----+
             */
+            
+            //Rectangle fullRect = new Rectangle(0, 0, NW.Width + NE.Width + middleWidth, NW.Height + SW.Height + middleHeight);
+            //g.FillRectangle(Brushes.Blue, fullRect);
+            
+            
             Rectangle r1 = new Rectangle(this.NW.Width, 0, middleWidth, this.NW.Height);
             g.DrawImage(this.NMid, r1);
 
@@ -76,6 +80,7 @@ namespace Kitsune
 
             Rectangle r5 = new Rectangle(this.NW.Width, this.NW.Height, middleWidth, middleHeight);
             g.DrawImage(this.Center, r5);
+            
 
             //g.DrawRectangle(Pens.Yellow, r1);
             // g.DrawRectangle(Pens.Green, r2);
@@ -94,7 +99,7 @@ namespace Kitsune
 
             g.DrawImageUnscaled(this.SE, this.NW.Width + middleWidth, this.NW.Height + middleHeight);
             //g.DrawRectangle(Pens.Yellow, abc.NW.Width + width, abc.NW.Height + height, abc.SE.Width, abc.SE.Height);
-
+            
         }
 
         public int MinWidth { get { return NW.Width + NMid.Width + NE.Width; } }

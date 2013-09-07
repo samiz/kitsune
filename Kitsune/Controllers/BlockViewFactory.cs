@@ -58,7 +58,7 @@ namespace Kitsune
 
             specialTextBits["_flag"] = (BitmapExtensions.LoadBmp("flag_textbit.bmp")).Transparent();
         }
-
+        #region ViewFrom....Block implementations
         public IBlockView ViewFromBlockStack(BlockStack blocks)
         {
             IEnumerable<IBlockView> stack = blocks.Select(b => ViewFromBlock(b));
@@ -158,24 +158,11 @@ namespace Kitsune
             }, new DataType[] { DataType.Invalid },
                 new BitArray(new bool[] { false, true }), pdb_parts);
             
-            IStackableBlockView body = (IStackableBlockView)ViewFromBlock(b.Body);
-            ProcDefView pdb = new ProcDefView(b, outerContent, innerContent, body);
+            ProcDefView pdb = new ProcDefView(b, outerContent, innerContent);
             b.FormalParamAdded += new ProcDefBitAddedEvent(ProcDefBlock_FormalParamAdded);
             b.FormalParamRemoved += new ProcDefBitRemovedEvent(ProcDefBlock_FormalParamRemoved);
             b.FormalParamChanged += new ProcDefBitChangedEvent(ProcDefBlock_FormalParamChanged);
             return pdb;
-        }
-
-        private int ArgBitTextHeight(IProcDefBit bb)
-        {
-            string toMeasure;
-            if (bb is VarDefBlock)
-                toMeasure = ((VarDefBlock)bb).Text;
-            else
-                toMeasure = ((ProcDefTextBit)bb).Text;
-            if(toMeasure == "")
-                toMeasure = "X";
-            return (int) textMetrics.MeasureString(toMeasure, textFont).Height;
         }
 
         public IBlockView ViewFromInvokationBlock(InvokationBlock b, BlockAttributes attribute)
@@ -304,7 +291,9 @@ namespace Kitsune
                 return cb;
             }
         }
-
+        #endregion
+      
+        #region events that listen to model changes
         void ProcDefTextBit_TextChanged(object sender, string newText)
         {
             ProcDefTextBit ptb = (ProcDefTextBit) sender;
@@ -383,7 +372,7 @@ namespace Kitsune
             parent.InsertView(i, v);
             modified();
         }
-
+        #endregion
         private Bitmap[] RenderTextBits(string[] textBits)
         {
             Bitmap[] TextBitBitmaps = new Bitmap[textBits.Length];
@@ -392,6 +381,18 @@ namespace Kitsune
                 TextBitBitmaps[i] = MakeTextBitBitmap(textBits[i], height);
 
             return TextBitBitmaps;
+        }
+
+        private int ArgBitTextHeight(IProcDefBit bb)
+        {
+            string toMeasure;
+            if (bb is VarDefBlock)
+                toMeasure = ((VarDefBlock)bb).Text;
+            else
+                toMeasure = ((ProcDefTextBit)bb).Text;
+            if (toMeasure == "")
+                toMeasure = "X";
+            return (int)textMetrics.MeasureString(toMeasure, textFont).Height;
         }
 
         private int TextBitHeight(string t)
@@ -410,10 +411,9 @@ namespace Kitsune
                 if (w == 0)
                     w = 4; // prevent zero-width bitmaps
 
-                Bitmap b = new Bitmap(w, height);
+                Bitmap b = new Bitmap(w, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
                 Graphics g = Graphics.FromImage(b);
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+                g.FastSettings();
                 g.Clear(Color.Transparent);
                 g.DrawString(p, boldFont, Brushes.White, 0, 0);
                 g.Dispose();

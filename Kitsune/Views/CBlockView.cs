@@ -197,11 +197,13 @@ namespace Kitsune
             AddLayoutBitmap(layoutBitmaps, bottom, ref width, ref height);
             
             Bitmap ret = new Bitmap(width, height,System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+            if (_cached != null)
+                _cached.Dispose();
             _cached = ret;
             
             using (Graphics g = Graphics.FromImage(ret))
             {
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g.FastSettings();
                 g.Clear(Color.Transparent);
                 int offSetIndex = 0;
                 
@@ -312,12 +314,12 @@ namespace Kitsune
         Bitmap AssembleA1A2A3(A1A2A3 a, int height)
         {
             height = Math.Max(a.MinHeight, height);
-            Bitmap ret = new Bitmap(a.A1.Width, height);
+            Bitmap ret = new Bitmap(a.A1.Width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(ret))
             {
+                g.FastSettings();
                 g.Clear(Color.Transparent);
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+                
                 g.DrawImageUnscaled(a.A1, 0, 0);
                 g.DrawImage(a.A2, new Rectangle(0, a.A1.Height, a.A1.Width, height - (a.A1.Height+a.A3.Height)));
                 g.DrawImageUnscaled(a.A3, 0, height - a.A3.Height);
@@ -326,13 +328,11 @@ namespace Kitsune
         }
         private Bitmap AssembleCBlockFoot(int width, ABC abc)
         {
-            Bitmap ret = new Bitmap(width, abc.A.Height);
+            Bitmap ret = new Bitmap(width, abc.A.Height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(ret))
             {
+                g.FastSettings();
                 g.Clear(Color.Transparent);
-
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 
                 g.DrawImageUnscaled(abc.A, 0, 0);
 

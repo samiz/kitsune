@@ -99,7 +99,7 @@ namespace Kitsune
             }
             Attach(v);
             argViews.Add(v);
-            //parts.Add(v.Assemble());
+            parts.Add(v.Assemble());
             Reassemble();
             Changed(this);
         }
@@ -155,6 +155,11 @@ namespace Kitsune
 
         void ArgView_Changed(object source)
         {
+            /*
+            IBlockView arg = (IBlockView)source;
+            int index = argViews.IndexOf(arg);
+            parts[index] = argViews[index].Assemble();
+             */
             Reassemble();
             Changed(this);
         }
@@ -169,11 +174,9 @@ namespace Kitsune
 
         public void Reassemble()
         {
-            // Why do we recompute the parts array instead of just using it?
-            // I remember this was to fix a bug that occurred when just using 'parts'
-            // need to remember & document the exact reason
-            this.parts.Clear();
-            this.parts.AddRange(argViews.Select(v => v.Assemble()));
+            // Recompute the parts array in case one of the parts' views was reassembled
+            for (int i = 0; i < parts.Count; ++i)
+                parts[i] = argViews[i].Assemble();
 
             int firstTextWidth = parts.Count ==0? 1: Math.Max(parts[0].Width, abc.MinTextWidth);
             int bmpWidth = abc.TextStart.X
@@ -192,15 +195,14 @@ namespace Kitsune
             int bmpHeight = height + abc.NW.Height + abc.SW.Height;
 
             Bitmap ret = new Bitmap(bmpWidth, bmpHeight, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+            if(_cached != null)
+                _cached.Dispose();
             _cached = ret;
 
-  
             using (Graphics g = Graphics.FromImage(ret))
             {
+                g.FastSettings();
                 g.Clear(Color.Transparent);
-
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 
                 abc.RenderToFit(g, width, height);
                 if (parts.Count != 0)
@@ -292,9 +294,10 @@ namespace Kitsune
         public static Bitmap BitmapFromText(string text, Graphics textMetrics, Font textFont)
         {
             SizeF s = textMetrics.MeasureString(text, textFont);
-            Bitmap b = new Bitmap((int) s.Width, (int) s.Height);
+            Bitmap b = new Bitmap((int)s.Width, (int)s.Height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(b))
             {
+                g.FastSettings();
                 g.Clear(Color.Transparent);
                 g.DrawString(text, textFont, Brushes.Beige, 0, 0);
             }

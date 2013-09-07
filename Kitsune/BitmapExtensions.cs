@@ -286,7 +286,7 @@ namespace Kitsune
 
         public static Bitmap Slice(this Bitmap bmp, int x, int y, int w, int h)
         {
-            Bitmap b2 = new Bitmap(w, h);
+            Bitmap b2 = new Bitmap(w, h, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             Graphics g = Graphics.FromImage(b2);
             g.DrawImage(bmp, new Rectangle(0, 0, w, h), new Rectangle(x, y, w, h), GraphicsUnit.Pixel);
             g.Dispose();
@@ -315,7 +315,10 @@ namespace Kitsune
 
         public static Bitmap StitchHorizontal(this Bitmap b1, Bitmap b2)
         {
-            Bitmap ret = new Bitmap(b1.Width + b2.Width, Math.Max(b1.Height, b2.Height));
+            Bitmap ret = new Bitmap(
+                b1.Width + b2.Width, 
+                Math.Max(b1.Height, b2.Height),
+                System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(ret))
             {
                 g.Clear(Color.Transparent);
@@ -324,6 +327,13 @@ namespace Kitsune
             }
             return ret;
         }
+
+        public static void FastSettings(this Graphics g)
+        {
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+        }
+
         public static double Clamp(this double v, double m)
         {
             if (v > m)

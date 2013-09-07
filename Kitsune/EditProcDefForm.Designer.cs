@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btnAddNumericParam = new System.Windows.Forms.Button();
             this.btnAddTextParam = new System.Windows.Forms.Button();
             this.btnAddObjectParam = new System.Windows.Forms.Button();
@@ -36,19 +35,9 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnAddLabel = new System.Windows.Forms.Button();
             this.btnErase = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.btnTestPeformance = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.SuspendLayout();
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BackColor = System.Drawing.Color.White;
-            this.pictureBox1.Location = new System.Drawing.Point(2, 2);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(390, 147);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             // 
             // btnAddNumericParam
             // 
@@ -127,12 +116,33 @@
             this.btnErase.TabIndex = 7;
             this.btnErase.UseVisualStyleBackColor = false;
             // 
+            // btnTestPeformance
+            // 
+            this.btnTestPeformance.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.btnTestPeformance.Location = new System.Drawing.Point(288, 155);
+            this.btnTestPeformance.Name = "btnTestPeformance";
+            this.btnTestPeformance.Size = new System.Drawing.Size(85, 48);
+            this.btnTestPeformance.TabIndex = 8;
+            this.btnTestPeformance.Text = "Test performance";
+            this.btnTestPeformance.UseVisualStyleBackColor = false;
+            this.btnTestPeformance.Click += new System.EventHandler(this.btnTestPeformance_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.Location = new System.Drawing.Point(13, 12);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(379, 128);
+            this.panel1.TabIndex = 9;
+            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            this.panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
+            // 
             // EditProcDefForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
             this.ClientSize = new System.Drawing.Size(404, 273);
+            this.Controls.Add(this.btnTestPeformance);
             this.Controls.Add(this.btnErase);
             this.Controls.Add(this.btnAddLabel);
             this.Controls.Add(this.btnCancel);
@@ -140,13 +150,14 @@
             this.Controls.Add(this.btnAddObjectParam);
             this.Controls.Add(this.btnAddTextParam);
             this.Controls.Add(this.btnAddNumericParam);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.panel1);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "EditProcDefForm";
             this.Text = "Define a new procedure";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.EditProcDef_FormClosed);
             this.Load += new System.EventHandler(this.EditProcDefForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.Click += new System.EventHandler(this.EditProcDefForm_Click);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -154,7 +165,6 @@
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button btnAddNumericParam;
         private System.Windows.Forms.Button btnAddTextParam;
         private System.Windows.Forms.Button btnAddObjectParam;
@@ -162,5 +172,7 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnAddLabel;
         private System.Windows.Forms.Button btnErase;
+        private System.Windows.Forms.Button btnTestPeformance;
+        private System.Windows.Forms.Panel panel1;
     }
 }

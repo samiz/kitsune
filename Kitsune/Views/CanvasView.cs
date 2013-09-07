@@ -34,7 +34,7 @@ namespace Kitsune
             this.canvas = new Bitmap(canvasSize.Width, canvasSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             this.textFont = textFont;
             Bitmap bg = BitmapExtensions.LoadBmp("bg.bmp");
-            Bitmap bg2 = new Bitmap(bg.Width, bg.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            Bitmap bg2 = new Bitmap(bg.Width, bg.Height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(bg2))
             {
                 g.DrawImageUnscaled(bg, 0, 0);

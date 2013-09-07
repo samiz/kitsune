@@ -13,19 +13,15 @@ namespace Kitsune
 
         ContentView surroundingContent;
         ContentView invokationContent;
-        IStackableBlockView body;
-
-        Bitmap _cached;
 
         public ProcDefView(ProcDefBlock model, ContentView surroundingContent,
-        ContentView invokationContent, IStackableBlockView body)
+        ContentView invokationContent)
         {
             this._model = model;
             this.surroundingContent = surroundingContent;
             this.invokationContent = invokationContent;
 
             Changed += delegate(object sender) { };
-            this.SetBody(body);
                         
             surroundingContent.Changed += new ViewChangedEvent(content_Changed);
             surroundingContent.Parent = this;
@@ -38,11 +34,6 @@ namespace Kitsune
         {
             Reassemble();
             Changed(this);
-        }
-
-        void body_Changed(object source)
-        {
-            throw new NotImplementedException();
         }
 
         public void AddFormalBit(IBlockView bit, DataType type)
@@ -64,52 +55,21 @@ namespace Kitsune
             invokationContent.SetSubView(index, v);
         }
 
-        public void SetBody(IStackableBlockView body)
-        {
-            // assume 'body' is already detached from its parent
-            // since we have no clean way to detach it from here
-            // (this is the same as block stacks or args really, 
-            // they are made top-level before being attached to something else)
-
-            // ...howerver we need to detach the old body
-            IStackableBlockView oldBody = this.body;
-            DetachBody(oldBody);
-
-            AttachBody(body);
-            this.body = body;
-            Reassemble();
-            Changed(this);
-
-        }
-
-        private void AttachBody(IStackableBlockView v)
-        {
-            v.Changed += new ViewChangedEvent(body_Changed);
-            v.Parent = this;
-        }
-
-        private void DetachBody(IStackableBlockView v)
-        {
-            if (v == null)
-                return;
-            if (!(v.Parent == this))
-            {
-                throw new InvalidOperationException("How did the parent of my body not be me??");
-            }
-            v.Parent = null;
-            v.Changed -= body_Changed;
-        }
-
         public Bitmap Assemble()
         {
-            if (_cached == null)
+            return surroundingContent.Assemble();
+            /*
+             if (_cached == null)
                 Reassemble();
 
             return _cached;
+             */
         }
 
         public void Reassemble()
         {
+          //  surroundingContent.Reassemble();
+            /*
             Bitmap contentBmp = surroundingContent.Assemble();
             Bitmap bodyBmp = body.Assemble();
             int width = Math.Max(contentBmp.Width, bodyBmp.Width);
@@ -118,12 +78,12 @@ namespace Kitsune
             _cached = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(_cached))
             {
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
-                
+                g.FastSettings();
+                g.Clear(Color.Transparent);
                 g.DrawImageUnscaled(contentBmp, 0, 0);
-                g.DrawImageUnscaled(bodyBmp, 0, contentBmp.Height - BlockStackView.NotchHeight);
+                //g.DrawImageUnscaled(bodyBmp, 0, contentBmp.Height - BlockStackView.NotchHeight);
             }
+             */ 
         }
 
         public IBlock Model { get {return _model; } }
@@ -135,22 +95,10 @@ namespace Kitsune
         public IEnumerable<DropRegion> DropRegions(Point origin)
         {
             
-            if ((body.Model is BlockStack) && ((BlockStack)body.Model).Empty)
-            {
-                // It's just a placeholder, no 'real' BlockStackView here
-                // We assume here that each script is preceded by a content and that they strictly
-                // alternate, and thus we can set the width of the placeholder to be that of 
-                // the previous content (Contents[i].Width)
                 Rectangle r = new Rectangle(origin, this.Assemble().Size).BottomSlice(5);
                 yield return new DropRegion(DropType.Below,
                     r,
                     this);
-            }
-            else
-            {
-                foreach (DropRegion dr in body.DropRegions(origin.Offseted(body.RelativePos)))
-                    yield return dr;
-            }
         }
 
         public IEnumerable<DropRegion> ChildDropRegions(Point origin)
@@ -159,28 +107,39 @@ namespace Kitsune
               foreach (DropRegion dr in content.ChildDropRegions(origin))
                 yield return dr;
              //*/
-            foreach (DropRegion dr in body.DropRegions(origin))
-                yield return dr;
+            yield break;
+
         }
 
         public bool HasPoint(System.Drawing.Point p, System.Drawing.Point origin)
         {
+            /*
             int x = p.X - origin.X;
             int y = p.Y - origin.Y;
             if (x < 0 || x >= _cached.Width || y < 0 || y >= _cached.Height)
                 return false;
             return _cached.GetPixel(x, y).ToArgb() != Color.Transparent.ToArgb();
+             */
+            return surroundingContent.HasPoint(p, origin);
         }
 
         public IBlockView ChildHasPoint(System.Drawing.Point p, System.Drawing.Point origin)
         {
+            
             IBlockView v = invokationContent;
             Point rp = v.RelativePos;
-            
+
             if (v.HasPoint(p, origin.Offseted(rp.X, rp.Y)))
-                    return v.ChildHasPoint(p, origin.Offseted(rp.X, rp.Y));
+            {
+                IBlockView cv = v.ChildHasPoint(p, origin.Offseted(rp.X, rp.Y));
+                if (cv != v)
+                    return cv;
+                else
+                    return this;
+            }
             
             return this;
+            
         }
 
         public BlockAttributes EffectiveAttribute()

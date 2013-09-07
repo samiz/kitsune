@@ -28,6 +28,7 @@ namespace Kitsune
         Button eraseButton;
 
         Dictionary<string, int> defaultArgNames = new Dictionary<string, int>();
+        private Graphics graphics;
         public EditProcDefController(ProcDefView view, ProcDefBlock model, BlockViewFactory factory,
             Func<TextBox> textBoxMaker, Button eraseButton)
         {
@@ -58,10 +59,11 @@ namespace Kitsune
         }
         void view_Changed(object source)
         {
+            //Redraw(graphics);
             Changed(this);
         }
 
-        public void Redraw(Graphics g, Size size)
+        public void Redraw(Graphics g)
         {
             g.Clear(Color.WhiteSmoke);
             Bitmap b = view.Assemble();
@@ -71,12 +73,27 @@ namespace Kitsune
             //g.DrawRectangle(Pens.Fuchsia, debugRect2);
         }
 
+        internal void Redraw()
+        {
+            Redraw(graphics);
+        }
+        public Image FinalImage { get { return view.Assemble(); } }
         public void AddArg(DataType type)
         {
             string argName = MakeArgName(type);
             VarDefBlock v = new VarDefBlock(argName, type);
             v.ParentRelationship = new ParentRelationship(ParentRelationshipType.FormalParameter, model, model.Bits.Count);
             model.AddBit(v);
+        }
+
+        public void TestAddArgPerformance()
+        {
+            for (int i = 0; i < 1500; ++i)
+            {
+                AddArg(DataType.Number);
+                IProcDefBit b = model.Bits.Last();
+                model.RemoveBit(b);
+            }
         }
 
         public void AddText()
@@ -111,7 +128,6 @@ namespace Kitsune
                     SetEditState(hit as ITextualView);
                 }
             }
-            
         }
 
         void eraseButton_Click(object sender, EventArgs e)
@@ -119,13 +135,17 @@ namespace Kitsune
             IProcDefBit b = (IProcDefBit)editedTextModel;
             ResetTextEditState();
             model.RemoveBit(b);
-            eraseButton.Hide();
         }
 
         private void ShowEraseButton(IBlockView hit)
         {
             eraseButton.Location = new Point(hit.AbsolutePos().X, 2);
             eraseButton.Show();
+        }
+
+        private void HideEraseButton()
+        {
+            eraseButton.Hide();
         }
 
         private void SetEditState(ITextualView v)
@@ -156,6 +176,7 @@ namespace Kitsune
 
         private void ResetTextEditState()
         {
+            HideEraseButton();
             editedTextBox.Parent.Controls.Remove(editedTextBox);
             editedTextBox = null;
             editedTextView = null;
@@ -244,5 +265,12 @@ namespace Kitsune
             return hit;
         }
         public ProcDefBlock Model { get { return model; } }
+
+        internal void SetGrapics(Graphics graphics)
+        {
+            this.graphics = graphics;
+        }
+
+
     }
 }

@@ -41,7 +41,7 @@ namespace Kitsune
         string originalEditedText;
         private TextBox editedTextBox;
         string status = "";
-
+        
         BlockViewFactory viewFactory;
 
         List<DropRegion> DropRegions = new List<DropRegion>();
@@ -405,11 +405,13 @@ namespace Kitsune
             }
             if (state == CanvasState.Ready)
             {
+                /*
                 IBlockView hit = HitTest(point);
                 if (hit != null)
                     canvasView.status = hit.ToString();
                 else
                     canvasView.status = "<None>";
+                 //*/
             }
         }
 
@@ -598,6 +600,7 @@ namespace Kitsune
             ProcDefBlock block = new ProcDefBlock();
             block.SetBody(new BlockStack());
             ProcDefView view = (ProcDefView) viewFactory.ViewFromBlock(block);
+
             EditProcDefController controller = new EditProcDefController(view, block, viewFactory, textBoxMaker, eraseButton);
             return controller;
         }

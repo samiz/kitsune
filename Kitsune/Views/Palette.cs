@@ -218,7 +218,7 @@ namespace Kitsune
         {
             using (Graphics g = Graphics.FromImage(bitmap))
             {
-
+                g.FastSettings();
                 g.Clear(Color.Transparent);
                 g.FillRectangle(new SolidBrush(Color.FromArgb(150, 150, 150)), 0, tabHeight, bitmap.Width, bitmap.Height - tabHeight);
                 int catX = 10;

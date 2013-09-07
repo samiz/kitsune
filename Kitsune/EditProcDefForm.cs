@@ -12,17 +12,17 @@ namespace Kitsune
     public partial class EditProcDefForm : Form
     {
         private EditProcDefController controller;
-
+        int paintCount = 0;
         public EditProcDefForm()
         {
             InitializeComponent();
             this.SetControlRoundRectRegion();
-            pictureBox1.Location = new Point((this.ClientSize.Width - pictureBox1.Width) / 2, 10);
-            pictureBox1.BackColor = this.BackColor;
-            if (!pictureBox1.Controls.Contains(btnErase))
+            panel1.Location = new Point((this.ClientSize.Width - panel1.Width) / 2, 10);
+
+            if (!panel1.Controls.Contains(btnErase))
             {
                 this.Controls.Remove(btnErase);
-                pictureBox1.Controls.Add(btnErase);
+                panel1.Controls.Add(btnErase);
             }
         }
 
@@ -30,27 +30,23 @@ namespace Kitsune
         {
             this.controller = controller;
             this.controller.Changed += new EditProcDefControllerChangedEvent(controller_Changed);
+            controller.SetGrapics(panel1.CreateGraphics());
         }
 
         public TextBox MakeTextBox()
         {
             TextBox tb = new TextBox();
             tb.BorderStyle = BorderStyle.FixedSingle;
-            tb.Parent = pictureBox1;
-            pictureBox1.Controls.Add(tb);
+            tb.Parent = panel1;
+            panel1.Controls.Add(tb);
             return tb;
         }
 
         void controller_Changed(object sender)
         {
-            pictureBox1.Invalidate();
+            controller.Redraw();
         }
-
-        private void pictureBox1_Paint(object sender, PaintEventArgs e)
-        {
-            controller.Redraw(e.Graphics, pictureBox1.Size);
-        }
-
+        
         private void btnAddLabel_Click(object sender, EventArgs e)
         {
             controller.AddText();
@@ -86,12 +82,7 @@ namespace Kitsune
             controller.Done();
         }
 
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
-        {
-            controller.MouseDown(e.Location);
-        }
-
-        internal Button GetEraseButton()
+         internal Button GetEraseButton()
         {
             return btnErase;
         }
@@ -100,7 +91,29 @@ namespace Kitsune
         {
             // Add an initial label for the proc name
             controller.AddText();
-            
         }
+
+        private void btnTestPeformance_Click(object sender, EventArgs e)
+        {
+            controller.TestAddArgPerformance();
+            MessageBox.Show("Performance test done");
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+            controller.Redraw(e.Graphics);
+            this.Text = "Paint # " + paintCount++;
+        }
+
+        private void panel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            controller.MouseDown(e.Location);
+        }
+
+        private void EditProcDefForm_Click(object sender, EventArgs e)
+        {
+            controller.AddArg(DataType.Number);
+        }
+
     }
 }

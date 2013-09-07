@@ -90,9 +90,10 @@ namespace Kitsune
             elementBitmaps = elements.Select(e => e.Assemble()).ToArray();
             int width = elementBitmaps.Max(e => e.Width);
             int height = elementBitmaps.Sum(e => e.Height) - (elements.Count - 1) * BlockStackView.NotchHeight;
-            _cached = new Bitmap(width, height);
+            _cached = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(_cached))
             {
+                g.FastSettings();
                 g.Clear(Color.Transparent);
                 int y = 0;
                 for (int i = 0; i < elements.Count; ++i)

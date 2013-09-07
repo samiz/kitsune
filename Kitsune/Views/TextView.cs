@@ -72,13 +72,11 @@ namespace Kitsune
             int h = Math.Max(sz.Height, abc.MinHeight) + 2;
             int middleWidth = w - (abc.NW.Width + abc.NE.Width);
             int middleHeight = h - (abc.NW.Height + abc.SW.Height);
-            _cached = new Bitmap(w, h);
+            _cached = new Bitmap(w, h, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
             using (Graphics g = Graphics.FromImage(_cached))
             {
+                g.FastSettings();
                 g.Clear(Color.Transparent);
-
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 
                 abc.RenderToFit(g, middleWidth, middleHeight);
                 g.DrawString(model.Text, textFont, Brushes.Black, 2, 2);
