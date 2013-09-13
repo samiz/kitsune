@@ -21,7 +21,14 @@ namespace Kitsune
         {
             return new TextBlock(text);
         }
-        public ParentRelationship ParentRelationship { get; set;}
+        
+        [NonSerialized] ParentRelationship _parentRelationship;
+        public ParentRelationship ParentRelationship
+        {
+            get { return _parentRelationship; }
+            set { _parentRelationship = value; }
+        }
+        public bool ShouldSerializeParentRelationship() { return false; }
 
         public void SetText(string newStr)
         {
@@ -30,5 +37,16 @@ namespace Kitsune
         }
 
         public string Text { get { return text; } }
+        public void PostSerializationPatchUp() { }
+        public string ToJson()
+        {
+            return string.Format("\"{0}\"", EscapeString(Text));
+        }
+
+        private string EscapeString(string s)
+        {
+            // todo:
+            return s;
+        }
     }
 }

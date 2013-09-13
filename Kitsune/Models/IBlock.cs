@@ -9,6 +9,8 @@ namespace Kitsune
     {
         ParentRelationship ParentRelationship { get; set; }
         IBlock DeepClone();
-        
+        void PostSerializationPatchUp();
+
+        string ToJson();
     }
 }

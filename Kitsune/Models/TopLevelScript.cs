@@ -32,5 +32,11 @@ namespace Kitsune
                 owner.NotifyTopLevelMoved(this);
             }
         }
+
+        internal string ToJson()
+        {
+            return string.Format("{{'kind':'script',\n'location':[{0},{1}],\n'code':{2}\n}}", 
+                Location.X,Location.Y, Block.ToJson());
+        }
     }
 }

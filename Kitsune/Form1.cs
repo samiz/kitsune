@@ -518,15 +518,19 @@ namespace Kitsune
         private void Save(string filename)
         {
             Stream s = new FileStream(filename, FileMode.Create, FileAccess.Write);
-            controller.Save(s);
-            s.Close();
+            TextWriter w = new StreamWriter(s);
+            w.Write(controller.Save());
+            w.Close();
         }
 
         private void Open(string filename)
         {
             Stream s = new FileStream(filename, FileMode.Open, FileAccess.Read);
-            controller.Load(s);
-            s.Close();
+            TextReader r = new StreamReader(s);
+            String json = r.ReadToEnd();
+            r.Close();
+            controller.Load(json);
+
         }
         private void SaveAs()
         {

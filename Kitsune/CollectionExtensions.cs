@@ -58,6 +58,45 @@ namespace Kitsune
             }
             return ret;
         }
+        public static IEnumerable<T> InterleavedWith<T>(this IEnumerable<T> list, IEnumerable<T> other)
+        {
+            IEnumerator<T> i1 = list.GetEnumerator();
+            IEnumerator<T> i2 = other.GetEnumerator();
+            IEnumerator<T> rest = null;
+            while (true)
+            {
+                bool b1 = i1.MoveNext();
+                bool b2 = i2.MoveNext();
+                if (b1 && b2)
+                {
+                    yield return i1.Current;
+                    yield return i2.Current;
+                }
+                else if (b1)
+                {
+                    rest = i1;
+                    break;
+                }
+                else if (b2)
+                {
+                    rest = i2;
+                    break;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (rest != null)
+            {
+                bool goon = true;
+                while(goon)
+                {
+                    yield return rest.Current;
+                    goon = rest.MoveNext();
+                }
+            }
+        }
         public static void InsertSorted<T>(this List<T> list, T value, Comparison<T> comparer)
         {
             int i=0;

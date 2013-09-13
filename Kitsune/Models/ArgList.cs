@@ -19,7 +19,7 @@ namespace Kitsune
             this.ArgAdded += delegate(object sender, IBlock newArg, DataType newArgType) { };
         }
 
-        
+        public int Count { get { return Args.Count; } }
         public IBlock this[int index]
         {
             get

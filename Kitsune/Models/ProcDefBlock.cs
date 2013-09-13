@@ -15,10 +15,8 @@ namespace Kitsune
         [field: NonSerialized] public event ProcDefBitChangedEvent FormalParamChanged;
         [field: NonSerialized] public event ProcDefBitAddedEvent FormalParamAdded;
         [field: NonSerialized] public event ProcDefBitRemovedEvent FormalParamRemoved;
-        [field: NonSerialized] public event ProcDefBodyChangedEvent BodyChanged;
 
         public List<IProcDefBit> Bits = new List<IProcDefBit>();
-        IBlock body;
 
         public ProcDefBlock()
         {
@@ -27,11 +25,9 @@ namespace Kitsune
             this.FormalParamChanged += delegate(object sender, int index, IProcDefBit newBit) { };
             this.FormalParamAdded += delegate(object sender, IProcDefBit newBit) { };
             this.FormalParamRemoved += delegate(object sender, IProcDefBit bit) { };
-            this.BodyChanged += delegate(object sender, IBlock newBody) { };
         }
 
-        public IBlock Body { get { return body; } }
-        
+        public void PostSerializationPatchUp() { }
         internal string GetMethodString()
         {
             StringBuilder sb = new StringBuilder();
@@ -68,11 +64,21 @@ namespace Kitsune
             }
             return ret.ToArray();
         }
-        public void SetBody(IBlock body)
+
+        internal VarDefBlock GetArg(string varName)
         {
-            this.body = body;
-            BodyChanged(this, body);
+            foreach (IProcDefBit bit in Bits)
+            {
+                if (bit is VarDefBlock)
+                {
+                    VarDefBlock vdb = bit as VarDefBlock;
+                    if (vdb.Name == varName)
+                        return vdb;
+                }
+            }
+            throw new ArgumentException(string.Format("ProcDefBlock.GetArg(): Variable {0} not an argument", varName));
         }
+
 
         public void AddBit(IProcDefBit bit)
         {
@@ -89,15 +95,31 @@ namespace Kitsune
             FormalParamRemoved(this, bit);
         }
 
-        public ParentRelationship ParentRelationship { get; set; }
+        [NonSerialized] ParentRelationship _parentRelationship;
+        public ParentRelationship ParentRelationship 
+        { 
+            get { return _parentRelationship; } 
+            set { _parentRelationship = value; } 
+        }
+        public bool ShouldSerializeParentRelationship() { return false; }
 
         public IBlock DeepClone()
         {
             ProcDefBlock ret = new ProcDefBlock();
             Bits.ForEach(b=>ret.AddBit(b.DeepClone()));
-            ret.body = body.DeepClone();
             return ret;
         }
+        public string ToJson()
+        {
+            List<string> lst = new List<string>();
+            lst.Add("\"define\"");
 
+            List<string> lst2 = new List<string>();
+            lst2.Add(this.GetMethodString());
+            lst2.AddRange(this.GetArgNames().InterleavedWith(this.GetArgTypes().Select(at=>DataTypeNames.NameOf(at))));
+            lst.Add(string.Format("[{0}]", lst2.Select(a=>string.Format("\"{0}\"",a)).Combine(", ")));
+                        
+            return string.Format("[{0}]", lst.Combine(", "));
+        }
     }
 }

@@ -27,6 +27,21 @@ namespace Kitsune
             AddDummyEvents();
         }
 
+        internal string ToJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[\n");
+            for (int i = 0; i < Scripts.Count; ++i)
+            {
+                TopLevelScript scr = Scripts[i];
+                sb.AppendLine(scr.ToJson());
+                if (i + 1 < Scripts.Count)
+                    sb.Append(", ");
+            }
+            sb.Append("\n]");
+            return sb.ToString();
+        }
+
         internal void Clear()
         {
             Scripts.ForEach(s => OnTopLevelDeleted(this, s));
@@ -52,6 +67,12 @@ namespace Kitsune
             return s;
         }
 
+        public void PostSerializationPatchUp()
+        {
+            foreach (TopLevelScript tls in Scripts)
+                tls.Block.PostSerializationPatchUp();
+        }
+
         internal void NotifyReloaded()
         {
             Scripts.ForEach(s=>OnTopLevelAdded(this,s));
@@ -74,6 +95,15 @@ namespace Kitsune
             if (system)
             {
                 systemBlockInfos[methodName] = bi;
+            }
+        }
+
+        public void RegisterSystemMethods(Dictionary<string, BlockInfo> infos)
+        {
+            foreach (KeyValuePair<string, BlockInfo> kv in infos)
+            {
+                systemBlockInfos.Add(kv.Key, kv.Value);
+                blockInfos.Add(kv.Key, kv.Value);
             }
         }
 
@@ -128,6 +158,16 @@ namespace Kitsune
             return Scripts.Find(s => s.Block == b);
         }
 
+        public bool RegisteredMethodAttribute(string invokation, out BlockAttributes attr)
+        {
+            if (blockInfos.ContainsKey(invokation))
+            {
+                attr = blockInfos[invokation].Attribute;
+                return true;
+            }
+            attr = BlockAttributes.Stack;
+            return false;
+        }
         internal BlockAttributes AttributeOf(IBlock block)
         {
             if (block is InvokationBlock)
@@ -257,6 +297,11 @@ namespace Kitsune
             IBlock arg = parent.Args[i];
             parent.SetArg(i, Default(parent.ArgTypes[i]));
             return arg;
+        }
+
+        internal Dictionary<string, BlockInfo> GetSystemMethods()
+        {
+            return systemBlockInfos;
         }
     }
 }

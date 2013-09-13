@@ -26,8 +26,15 @@ namespace Kitsune
             this.ParentRelationship = new ParentRelationship();
             this.OnArgChanged += delegate(object sender, int arg, IBlock _old, IBlock _new) { };
         }
-        
-        public ParentRelationship ParentRelationship { get; set; }
+
+        [NonSerialized]
+        ParentRelationship _parentRelationship;
+        public ParentRelationship ParentRelationship
+        {
+            get { return _parentRelationship; }
+            set { _parentRelationship = value; }
+        }
+        public bool ShouldSerializeParentRelationship() { return false; }
 
         public void SetArg(int i, IBlock arg)
         {
@@ -48,6 +55,14 @@ namespace Kitsune
             arg.ParentRelationship = new ParentRelationship();
         }
 
+        public void PostSerializationPatchUp()
+        {
+            for (int i = 0; i < Args.Count; ++i)
+            {
+                Attach(Args[i], i);
+                Args[i].PostSerializationPatchUp();
+            }
+        }
         public IBlock DeepClone()
         {
             InvokationBlock ret = new InvokationBlock(Text, Attributes, ArgTypes);
@@ -57,6 +72,15 @@ namespace Kitsune
                 ret.SetArg(i, arg.DeepClone());
             }
             return ret;
+        }
+        public string ToJson()
+        {
+            List<string> lst = new List<string>();
+            lst.AddRange(this.Args.Select(b => b.ToJson()));
+            return string.Format("[\"{0}\",\"{1}\", {2}]", 
+                this.Text,
+                DataTypeNames.TypeFingerprint(this.ArgTypes),
+                lst.Combine(", "));
         }
     }
 }

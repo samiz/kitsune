@@ -38,14 +38,23 @@ namespace Kitsune
             TextChanged(this, text);
         }
 
-        public ParentRelationship ParentRelationship { get; set; }
+        [NonSerialized] ParentRelationship _parentRelationship;
+        public ParentRelationship ParentRelationship
+        {
+            get { return _parentRelationship; }
+            set { _parentRelationship = value; }
+        }
+        public bool ShouldSerializeParentRelationship() { return false; }
 
         IBlock IBlock.DeepClone()
         {
             throw new NotImplementedException();
         }
 
-
-
+        public void PostSerializationPatchUp() { }
+        public string ToJson()
+        {
+            return Text;
+        }
     }
 }

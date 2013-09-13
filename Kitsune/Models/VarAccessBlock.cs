@@ -17,11 +17,24 @@ namespace Kitsune
 
         public string Name { get { return _declaration.Name; } }
         public VarDefBlock Declaration { get { return _declaration; } }
-        public ParentRelationship ParentRelationship {get ; set; }
+        
+        [NonSerialized] ParentRelationship _parentRelationship;
+        public ParentRelationship ParentRelationship
+        {
+            get { return _parentRelationship; }
+            set { _parentRelationship = value; }
+        }
+        public bool ShouldSerializeParentRelationship() { return false; }
 
         public IBlock DeepClone()
         {
             return new VarAccessBlock(Declaration);
+        }
+
+        public void PostSerializationPatchUp() { }
+        public string ToJson()
+        {
+            return string.Format("[\"var\", \"{0}\"]", _declaration.Name);
         }
     }
 }

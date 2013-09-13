@@ -23,7 +23,14 @@ namespace Kitsune
         public string Text { get { return _name; } }
 
         public DataType Type { get { return _type; } }
-        public ParentRelationship ParentRelationship { get; set; }
+
+        [NonSerialized] ParentRelationship _parentRelationship;
+        public ParentRelationship ParentRelationship
+        {
+            get { return _parentRelationship; }
+            set { _parentRelationship = value; }
+        }
+        public bool ShouldSerializeParentRelationship() { return false; }
 
         public string ArgBitString()
         {
@@ -46,7 +53,11 @@ namespace Kitsune
             return new VarDefBlock(_name, _type);
         }
 
-
+        public void PostSerializationPatchUp() { }
+        public string ToJson()
+        {
+            return string.Format("[\"varDecl\", {0}, {1}]", Name, Type);
+        }
 
     }
 }

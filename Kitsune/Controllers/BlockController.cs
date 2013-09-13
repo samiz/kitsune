@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json;
 
 namespace Kitsune
 {
@@ -111,6 +112,7 @@ namespace Kitsune
             blockSpace.OnTopLevelAdded += new TopLevelEvent(blockSpace_OnTopLevelAdded);
             blockSpace.OnTopLevelDeleted += new TopLevelEvent(blockSpace_OnTopLevelDeleted);
             blockSpace.OnTopLevelMoved += new TopLevelEvent(blockSpace_OnTopLevelMoved);
+            blockSpace.PostSerializationPatchUp();
             viewFactory.ResetBlockSpace(blockSpace);
             allViews.Clear();
             blockSpace.NotifyReloaded();
@@ -143,16 +145,17 @@ namespace Kitsune
             Update();
         }
 
-        public void Save(Stream s)
+        public string Save()
         {
-            IFormatter f = new BinaryFormatter();
-            f.Serialize(s, blockSpace);
+            return blockSpace.ToJson();
         }
 
-        public void Load(Stream s)
+        public void Load(string json)
         {
-            IFormatter f = new BinaryFormatter();
-            blockSpace = (BlockSpace)f.Deserialize(s);
+            blockSpace.Clear();
+            BlockDeserializer ds = new BlockDeserializer();
+            BlockSpace bspace = ds.LoadBlockSpace(json, blockSpace, blockSpace.GetSystemMethods(), (proc) => DefineNewProcFromFile(proc, "My blocks"));
+
             blockSpace.AddDummyEvents();
             ResetBlockSpace();
         }
@@ -162,6 +165,14 @@ namespace Kitsune
             blockSpace.RegisterMethod(methodName, attribute, returnType, argTypes, true);
         }
 
+        public void DefineNewProcFromFile(ProcDefBlock proc, string category)
+        {
+            string methodName = proc.GetMethodString();
+            DataType[] argTypes = proc.GetArgTypes();
+            blockSpace.RegisterMethod(methodName, BlockAttributes.Stack, DataType.Script, argTypes, false);
+            palette.AddTool(blockSpace,
+                tool("nobmp|" + methodName, category, argTypes.Select(t => blockSpace.Default(t)).ToArray()));
+        }
         public void DefineNewProc(ProcDefBlock proc, string category)
         {
             string methodName = proc.GetMethodString();
@@ -598,7 +609,6 @@ namespace Kitsune
         public EditProcDefController NewProcDef(Func<TextBox> textBoxMaker, Button eraseButton)
         {
             ProcDefBlock block = new ProcDefBlock();
-            block.SetBody(new BlockStack());
             ProcDefView view = (ProcDefView) viewFactory.ViewFromBlock(block);
 
             EditProcDefController controller = new EditProcDefController(view, block, viewFactory, textBoxMaker, eraseButton);

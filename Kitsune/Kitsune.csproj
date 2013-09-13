@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -58,8 +61,10 @@
     <Compile Include="EditProcDefForm.Designer.cs">
       <DependentUpon>EditProcDefForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\BlockDeserializer.cs" />
     <Compile Include="Models\IProcDefBit.cs" />
     <Compile Include="Models\ITextualBlock.cs" />
+    <Compile Include="Models\TypeException.cs" />
     <Compile Include="Views\EditableVarDefView.cs" />
     <Compile Include="Views\EditableLabelView.cs" />
     <Compile Include="Views\ITextualView.cs" />

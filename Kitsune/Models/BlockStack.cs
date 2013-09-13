@@ -31,7 +31,22 @@ namespace Kitsune
             }
             return ret;
         }
-        public ParentRelationship ParentRelationship { get; set; }
+        public void PostSerializationPatchUp() 
+        {
+            for (int i = 0; i < Blocks.Count; ++i)
+            {
+                Attach(Blocks[i], i);
+                Blocks[i].PostSerializationPatchUp();
+            }
+        }
+
+        [NonSerialized] ParentRelationship _parentRelationship;
+        public ParentRelationship ParentRelationship
+        {
+            get { return _parentRelationship; }
+            set { _parentRelationship = value; }
+        }
+        public bool ShouldSerializeParentRelationship() { return false; }
 
         public IBlock this[int index]
         {
@@ -129,5 +144,12 @@ namespace Kitsune
         }
 
         public bool Empty { get { return Blocks.Count == 0; } }
+        public string ToJson()
+        {
+            List<string> lst = new List<string>();
+            lst.Add("\"do\"");
+            lst.AddRange(this.Blocks.Select(b=>b.ToJson()));
+            return string.Format("[{0}]", lst.Combine(", "));
+        }
     }
 }
