@@ -31,7 +31,6 @@ namespace Kitsune
             return new VarAccessBlock(Declaration);
         }
 
-        public void PostSerializationPatchUp() { }
         public string ToJson()
         {
             return string.Format("[\"var\", \"{0}\"]", _declaration.Name);

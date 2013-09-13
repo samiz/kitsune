@@ -37,11 +37,12 @@
             this.btnErase = new System.Windows.Forms.Button();
             this.btnTestPeformance = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnAddBooleanParam = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnAddNumericParam
             // 
-            this.btnAddNumericParam.Location = new System.Drawing.Point(163, 180);
+            this.btnAddNumericParam.Location = new System.Drawing.Point(163, 181);
             this.btnAddNumericParam.Name = "btnAddNumericParam";
             this.btnAddNumericParam.Size = new System.Drawing.Size(75, 23);
             this.btnAddNumericParam.TabIndex = 1;
@@ -51,7 +52,7 @@
             // 
             // btnAddTextParam
             // 
-            this.btnAddTextParam.Location = new System.Drawing.Point(163, 209);
+            this.btnAddTextParam.Location = new System.Drawing.Point(163, 233);
             this.btnAddTextParam.Name = "btnAddTextParam";
             this.btnAddTextParam.Size = new System.Drawing.Size(75, 23);
             this.btnAddTextParam.TabIndex = 2;
@@ -61,7 +62,7 @@
             // 
             // btnAddObjectParam
             // 
-            this.btnAddObjectParam.Location = new System.Drawing.Point(163, 238);
+            this.btnAddObjectParam.Location = new System.Drawing.Point(163, 259);
             this.btnAddObjectParam.Name = "btnAddObjectParam";
             this.btnAddObjectParam.Size = new System.Drawing.Size(75, 23);
             this.btnAddObjectParam.TabIndex = 3;
@@ -72,7 +73,7 @@
             // btnOk
             // 
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(13, 208);
+            this.btnOk.Location = new System.Drawing.Point(13, 155);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 4;
@@ -83,7 +84,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(13, 237);
+            this.btnCancel.Location = new System.Drawing.Point(13, 187);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 5;
@@ -136,12 +137,23 @@
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             this.panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
             // 
+            // btnAddBooleanParam
+            // 
+            this.btnAddBooleanParam.Location = new System.Drawing.Point(163, 207);
+            this.btnAddBooleanParam.Name = "btnAddBooleanParam";
+            this.btnAddBooleanParam.Size = new System.Drawing.Size(75, 23);
+            this.btnAddBooleanParam.TabIndex = 10;
+            this.btnAddBooleanParam.Text = "Add &Boolean";
+            this.btnAddBooleanParam.UseVisualStyleBackColor = true;
+            this.btnAddBooleanParam.Click += new System.EventHandler(this.btnAddBooleanParam_Click);
+            // 
             // EditProcDefForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gainsboro;
-            this.ClientSize = new System.Drawing.Size(404, 273);
+            this.ClientSize = new System.Drawing.Size(404, 297);
+            this.Controls.Add(this.btnAddBooleanParam);
             this.Controls.Add(this.btnTestPeformance);
             this.Controls.Add(this.btnErase);
             this.Controls.Add(this.btnAddLabel);
@@ -157,7 +169,6 @@
             this.Text = "Define a new procedure";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.EditProcDef_FormClosed);
             this.Load += new System.EventHandler(this.EditProcDefForm_Load);
-            this.Click += new System.EventHandler(this.EditProcDefForm_Click);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -174,5 +185,6 @@
         private System.Windows.Forms.Button btnErase;
         private System.Windows.Forms.Button btnTestPeformance;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button btnAddBooleanParam;
     }
 }

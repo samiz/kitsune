@@ -8,7 +8,8 @@ namespace Kitsune
     [Serializable]
     public enum DataType
     {
-        Number, Text, Script, Object, Invalid
+        Number, Text, Script, Object, Invalid,
+        Boolean
     }
     public static class DataTypeNames
     {

@@ -27,7 +27,6 @@ namespace Kitsune
             this.FormalParamRemoved += delegate(object sender, IProcDefBit bit) { };
         }
 
-        public void PostSerializationPatchUp() { }
         internal string GetMethodString()
         {
             StringBuilder sb = new StringBuilder();

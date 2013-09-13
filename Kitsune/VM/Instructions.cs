@@ -122,8 +122,8 @@ namespace Kitsune.VM
         }
         public override void Run(Process p)
         {
-            int value = (int) (double) p.operandStack.Pop();
-            if (value == 0)
+            bool value = (bool) p.operandStack.Pop();
+            if (!value)
             {
                 Frame f = p.callStack.Peek();
                 f.IP = f.Method.Labels[label];

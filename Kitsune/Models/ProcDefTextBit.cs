@@ -51,7 +51,6 @@ namespace Kitsune
             throw new NotImplementedException();
         }
 
-        public void PostSerializationPatchUp() { }
         public string ToJson()
         {
             return Text;

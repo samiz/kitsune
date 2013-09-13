@@ -37,7 +37,6 @@ namespace Kitsune
         }
 
         public string Text { get { return text; } }
-        public void PostSerializationPatchUp() { }
         public string ToJson()
         {
             return string.Format("\"{0}\"", EscapeString(Text));

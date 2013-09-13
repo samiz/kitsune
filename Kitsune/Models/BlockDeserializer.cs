@@ -132,10 +132,12 @@ namespace Kitsune
         {
             string name = json[0].ToString();
             string typeFingerPrint = json[1].ToString();
+            string retTypeName = json[2].ToString();
             TypeCheck(name, typeFingerPrint);
             DataType[] argTypes = DataTypeNames.DecodeFingerprint(typeFingerPrint);
+            DataType retType = DataTypeNames.TypeOf(retTypeName);
             List<IBlock> args = new List<IBlock>();
-            for (int i = 2; i < json.Count(); ++i)
+            for (int i = 3; i < json.Count(); ++i)
             {
                 args.Add(ToBlock(json[i]));
             }
@@ -144,7 +146,7 @@ namespace Kitsune
             {
                 attr = BlockAttributes.Stack;
             }
-            InvokationBlock ib = new InvokationBlock(name, attr, argTypes);
+            InvokationBlock ib = new InvokationBlock(name, attr, argTypes, retType);
             ib.Args.AddRange(args.ToArray(), argTypes.ToArray());
             return ib;
         }

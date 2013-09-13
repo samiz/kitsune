@@ -67,12 +67,6 @@ namespace Kitsune
             return s;
         }
 
-        public void PostSerializationPatchUp()
-        {
-            foreach (TopLevelScript tls in Scripts)
-                tls.Block.PostSerializationPatchUp();
-        }
-
         internal void NotifyReloaded()
         {
             Scripts.ForEach(s=>OnTopLevelAdded(this,s));
@@ -120,7 +114,7 @@ namespace Kitsune
                 args[i] = Default(bi.ArgTypes[i]);
             }
 
-            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes);
+            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes, bi.ReturnType);
             block.Args.AddRange(args, bi.ArgTypes);
             return block;
         }
@@ -128,7 +122,7 @@ namespace Kitsune
         {
             BlockInfo bi = blockInfos[text];
             
-            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes);
+            InvokationBlock block = new InvokationBlock(text, BlockAttributes.Hat, bi.ArgTypes, bi.ReturnType);
             block.Args.AddRange(args.Select(a=>a.DeepClone()).ToArray(), bi.ArgTypes);
             
             return block;
@@ -140,6 +134,7 @@ namespace Kitsune
             {
                 case DataType.Number:
                 case DataType.Text:
+                case DataType.Boolean:
                     return new TextBlock("");
                 case DataType.Script:
                     return new BlockStack();

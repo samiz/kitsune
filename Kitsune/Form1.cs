@@ -152,6 +152,65 @@ namespace Kitsune
                 return a / b;
             });
 
+            vm.RegisterPrimitve("<", delegate(object[] args)
+            {
+                object a = args[0];
+                object b = args[1];
+                if (a.GetType() != b.GetType())
+                {
+                    a = a.ToString();
+                    b = b.ToString();
+                }
+                return (a as IComparable).CompareTo(b)< 0;
+            });
+
+            vm.RegisterPrimitve("=", delegate(object[] args)
+            {
+                object a = args[0];
+                object b = args[1];
+                if (a.GetType() != b.GetType())
+                {
+                    a = a.ToString();
+                    b = b.ToString();
+                }
+                return a.Equals(b);
+            });
+
+            vm.RegisterPrimitve(">", delegate(object[] args)
+            {
+                object a = args[0];
+                object b = args[1];
+                if (a.GetType() != b.GetType())
+                {
+                    a = a.ToString();
+                    b = b.ToString();
+                }
+                return (a as IComparable).CompareTo(b) > 0;
+            });
+
+            vm.RegisterPrimitve("and", delegate(object[] args)
+            {
+                bool a = (bool) args[0];
+                bool b = (bool) args[1];
+
+                return a && b;
+            });
+
+            vm.RegisterPrimitve("or", delegate(object[] args)
+            {
+                bool a = (bool)args[0];
+                bool b = (bool)args[1];
+
+                return a || b;
+            });
+
+            vm.RegisterPrimitve("not", delegate(object[] args)
+            {
+                bool a = (bool)args[0];
+
+                return !a;
+            });
+
             vm.RegisterPrimitve("say", delegate(object[] args)
             {
                 stage.Say(kitsune, args[0].ToString());
@@ -232,6 +291,14 @@ namespace Kitsune
            compiler.PrimitiveAliases["% - %"] = "-";
            compiler.PrimitiveAliases["% * %"] = "*";
            compiler.PrimitiveAliases["% / %"] = "/";
+
+           compiler.PrimitiveAliases["% < %"] = "<";
+           compiler.PrimitiveAliases["% = %"] = "=";
+           compiler.PrimitiveAliases["% > %"] = ">";
+           compiler.PrimitiveAliases["% and %"] = "and";
+           compiler.PrimitiveAliases["% or %"] = "or";
+           compiler.PrimitiveAliases["not %"] = "not";
+
            compiler.PrimitiveAliases["random from % to %"] = "random";
            compiler.PrimitiveAliases["sin %"] = "sin";
            compiler.PrimitiveAliases["cos %"] = "cos";
@@ -275,9 +342,18 @@ namespace Kitsune
             controller.RegisterSystemMethod("% - %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number, DataType.Number });
             controller.RegisterSystemMethod("% * %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number, DataType.Number });
             controller.RegisterSystemMethod("% / %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number, DataType.Number });
+
+            controller.RegisterSystemMethod("% < %", BlockAttributes.Report, DataType.Boolean, new DataType[] { DataType.Object, DataType.Object });
+            controller.RegisterSystemMethod("% = %", BlockAttributes.Report, DataType.Boolean, new DataType[] { DataType.Object, DataType.Object});
+            controller.RegisterSystemMethod("% > %", BlockAttributes.Report, DataType.Boolean, new DataType[] { DataType.Object, DataType.Object });
+
+            controller.RegisterSystemMethod("% and %", BlockAttributes.Report, DataType.Boolean, new DataType[] { DataType.Boolean, DataType.Boolean });
+            controller.RegisterSystemMethod("% or %", BlockAttributes.Report, DataType.Boolean, new DataType[] { DataType.Boolean, DataType.Boolean });
+            controller.RegisterSystemMethod("not %", BlockAttributes.Report, DataType.Boolean, new DataType[] { DataType.Boolean});
+
             controller.RegisterSystemMethod("random from % to %", BlockAttributes.Report, DataType.Number, new DataType[] { DataType.Number, DataType.Number });
             
-            controller.RegisterSystemMethod("if % then % else %", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Number, DataType.Script, DataType.Script });
+            controller.RegisterSystemMethod("if % then % else %", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Boolean, DataType.Script, DataType.Script });
             controller.RegisterSystemMethod("repeat % times %", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Number, DataType.Script });
             controller.RegisterSystemMethod("forever %", BlockAttributes.Cap, DataType.Script, new DataType[] { DataType.Script });
             controller.RegisterSystemMethod("wait % milliseconds", BlockAttributes.Stack, DataType.Script, new DataType[] { DataType.Number});
@@ -308,11 +384,11 @@ namespace Kitsune
         {
             controller.MouseUp(e.Location);
         }
-        private InvokationBlock makeInvokationBlock(string invokation, DataType[] types, IBlock[] values)
+        private InvokationBlock makeInvokationBlock(string invokation, DataType[] types, DataType retType, IBlock[] values)
         {
             List<DataType> typesList = new List<DataType>();
             typesList.AddRange(types);
-            InvokationBlock ret = new InvokationBlock(invokation, BlockAttributes.Hat, typesList);
+            InvokationBlock ret = new InvokationBlock(invokation, BlockAttributes.Hat, typesList, retType);
             ret.Args.AddRange(values, types);
             return ret;
         }
@@ -321,10 +397,12 @@ namespace Kitsune
         {
             InvokationBlock b1 = makeInvokationBlock("move % steps",
              new DataType[] { DataType.Number },
+             DataType.Script,
              new IBlock[] { new TextBlock("") });
 
             InvokationBlock b2 = makeInvokationBlock("turn % degrees right",
                 new DataType[] { DataType.Number },
+                DataType.Script,
                 new IBlock[] { new TextBlock("") });
 
             BlockStack stack = new BlockStack();
@@ -336,7 +414,9 @@ namespace Kitsune
         {
             InvokationBlock b = makeInvokationBlock("sin %",
                new DataType[] { DataType.Number },
+               DataType.Number,
                new IBlock[] { makeInvokationBlock("% + %", new DataType[]{DataType.Number, DataType.Number},
+                   DataType.Number,
                    new IBlock[]{new TextBlock(""), new TextBlock("")}) });
 
             controller.AddTopLevel(b, at);
@@ -352,6 +432,7 @@ namespace Kitsune
         {
             InvokationBlock b = makeInvokationBlock("if % then % else %",
                 new DataType[] { DataType.Number, DataType.Script, DataType.Script },
+                DataType.Script,
                 new IBlock[] { new TextBlock(""), makeSampleBlockStack(), makeSampleBlockStack() });
 
             controller.AddTopLevel(b, at);
@@ -558,7 +639,5 @@ namespace Kitsune
                 controller.DefineNewProc(subController.Model, "My blocks");
             }
         }
-
-      
     }
 }

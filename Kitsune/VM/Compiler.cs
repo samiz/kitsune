@@ -37,6 +37,7 @@ namespace Kitsune.VM
             instructions.Add(new Ret(vm));
             ret.Instructions = instructions.ToArray();
             ret.Arity = argNames.Length;
+            ret.PrepareLabels();
             return ret;
         }
         public Method Compile(IBlock b, bool mainProgram)
@@ -96,12 +97,23 @@ namespace Kitsune.VM
                 case DataType.Number:
                     instructions.Add(new Push(vm, Double.Parse(b.Text)));
                     break;
+                case DataType.Boolean:
+                    if (b.Text == "")
+                        instructions.Add(new Push(vm, false));
+                    else
+                        compilerError(b, string.Format("Unexpected value for boolean: {0}", b.Text));
+                    break;
                 case DataType.Object:
                     instructions.Add(new Push(vm, b.Text));
                     break;
                 default:
                     throw new ArgumentException();
             }
+        }
+
+        private void compilerError(TextBlock b, string p)
+        {
+            
         }
 
         private void CompileInvokationBlock(InvokationBlock b, DataType type, List<Instruction> instructions, Dictionary<string, int> labels)
@@ -172,7 +184,7 @@ namespace Kitsune.VM
             string label1 = MakeLabel();
             string label2 = MakeLabel();
             
-            CompileExpression(b.Args[0], DataType.Number, instructions, labels);
+            CompileExpression(b.Args[0], DataType.Boolean, instructions, labels);
             instructions.Add(new JumpIfNot(vm, label1));
             
             CompileExpression(b.Args[1], DataType.Script, instructions, labels);

@@ -57,6 +57,11 @@ namespace Kitsune
             controller.AddArg(DataType.Number);
         }
 
+        private void btnAddBooleanParam_Click(object sender, EventArgs e)
+        {
+            controller.AddArg(DataType.Boolean);
+        }
+
         private void btnAddTextParam_Click(object sender, EventArgs e)
         {
             controller.AddArg(DataType.Text);
@@ -108,11 +113,6 @@ namespace Kitsune
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
             controller.MouseDown(e.Location);
-        }
-
-        private void EditProcDefForm_Click(object sender, EventArgs e)
-        {
-            controller.AddArg(DataType.Number);
         }
 
     }

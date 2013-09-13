@@ -14,13 +14,15 @@ namespace Kitsune
         public BlockAttributes Attributes { get; private set; }
         public ArgList Args { get; private set; }
         public List<DataType> ArgTypes { get; private set; }
+        public DataType ReturnType { get; private set; }
         
-        public InvokationBlock(string text, BlockAttributes Attributes, IEnumerable<DataType> ArgTypes)
+        public InvokationBlock(string text, BlockAttributes Attributes, IEnumerable<DataType> ArgTypes, DataType returnType)
         {
             this.Text = text;
             this.Attributes = Attributes;
             this.ArgTypes = new List<DataType>();
             this.ArgTypes.AddRange(ArgTypes);
+            this.ReturnType = returnType;
             this.Args = new ArgList(this);
 
             this.ParentRelationship = new ParentRelationship();
@@ -55,17 +57,10 @@ namespace Kitsune
             arg.ParentRelationship = new ParentRelationship();
         }
 
-        public void PostSerializationPatchUp()
-        {
-            for (int i = 0; i < Args.Count; ++i)
-            {
-                Attach(Args[i], i);
-                Args[i].PostSerializationPatchUp();
-            }
-        }
+
         public IBlock DeepClone()
         {
-            InvokationBlock ret = new InvokationBlock(Text, Attributes, ArgTypes);
+            InvokationBlock ret = new InvokationBlock(Text, Attributes, ArgTypes, ReturnType);
             int i = 0;
             foreach (IBlock arg in Args)
             {
@@ -77,9 +72,10 @@ namespace Kitsune
         {
             List<string> lst = new List<string>();
             lst.AddRange(this.Args.Select(b => b.ToJson()));
-            return string.Format("[\"{0}\",\"{1}\", {2}]", 
+            return string.Format("[\"{0}\",\"{1}\",\"{2}\", {3}]", 
                 this.Text,
                 DataTypeNames.TypeFingerprint(this.ArgTypes),
+                this.ReturnType,
                 lst.Combine(", "));
         }
     }

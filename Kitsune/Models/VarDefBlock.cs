@@ -53,7 +53,6 @@ namespace Kitsune
             return new VarDefBlock(_name, _type);
         }
 
-        public void PostSerializationPatchUp() { }
         public string ToJson()
         {
             return string.Format("[\"varDecl\", {0}, {1}]", Name, Type);

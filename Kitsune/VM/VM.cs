@@ -17,7 +17,7 @@ namespace Kitsune.VM
 
         internal void DefineMethod(string name, Method m)
         {
-            methods[name] = m; 
+            methods[name] = m;
         }
 
         internal bool HasMethod(string p)
@@ -70,7 +70,6 @@ namespace Kitsune.VM
 
             if (stillRunning(runningNow))
                 running.Enqueue(runningNow);
-
         }
 
         private bool stillRunning(Process p)
@@ -109,7 +108,6 @@ namespace Kitsune.VM
                 }
                 
             }
-            
         }
     }
 }

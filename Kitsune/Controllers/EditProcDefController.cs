@@ -239,6 +239,9 @@ namespace Kitsune
                 case DataType.Number:
                     baseName = "number";
                     break;
+                case DataType.Boolean:
+                    baseName = "boolean";
+                    break;
                 case DataType.Object:
                     baseName = "object";
                     break;

@@ -31,14 +31,6 @@ namespace Kitsune
             }
             return ret;
         }
-        public void PostSerializationPatchUp() 
-        {
-            for (int i = 0; i < Blocks.Count; ++i)
-            {
-                Attach(Blocks[i], i);
-                Blocks[i].PostSerializationPatchUp();
-            }
-        }
 
         [NonSerialized] ParentRelationship _parentRelationship;
         public ParentRelationship ParentRelationship

@@ -11,6 +11,7 @@ namespace Kitsune
     {
         StackBlockImgParts sb_parts;
         StackBlockImgParts fib_parts;
+        StackBlockImgParts bool_parts;
         StackBlockImgParts pdb_parts;
         Nine varb_parts;
         StackBlockImgParts capb_parts;
@@ -47,6 +48,7 @@ namespace Kitsune
         {
             sb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("stack_blue_small.bmp"));
             fib_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("function_green_small.bmp"));
+            bool_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("boolean.bmp"));
             pdb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("procdef_small.bmp"));
             varb_parts = Nine.FromBitmap(BitmapExtensions.LoadBmp("var_purple_small.bmp"), Color.Red);
             hatb_parts = StackBlockImgParts.FromBitmap(BitmapExtensions.LoadBmp("hat_small.bmp"));
@@ -200,7 +202,10 @@ namespace Kitsune
                         imageParts = sb_parts;
                         break;
                     case BlockAttributes.Report:
-                        imageParts = fib_parts;
+                        if (b.ReturnType == DataType.Boolean)
+                            imageParts = bool_parts;
+                        else
+                            imageParts = fib_parts;
                         break;
                     case BlockAttributes.Cap:
                         imageParts = capb_parts;

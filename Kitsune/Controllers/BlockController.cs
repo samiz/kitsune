@@ -88,6 +88,12 @@ namespace Kitsune
                 tool("times|% * %", "math", new TextBlock("5"), new TextBlock("5")),
                 tool("divide|% / %", "math", new TextBlock("5"), new TextBlock("5")),
                 tool("random|random from % to %", "math", new TextBlock("1"), new TextBlock("10")),
+                tool("noicon|% < %", "math", new TextBlock(""), new TextBlock("")),
+                tool("noicon|% = %", "math", new TextBlock(""), new TextBlock("")),
+                tool("noicon|% > %", "math", new TextBlock(""), new TextBlock("")),
+                tool("noicon|% and %", "math", new TextBlock(""), new TextBlock("")),
+                tool("noicon|% or %", "math", new TextBlock(""), new TextBlock("")),
+                tool("noicon|not %", "math", new TextBlock("")),
                 tool("sin|sin %", "math", new TextBlock("60")),
                 tool("cos|cos%", "math", new TextBlock("60")),
                 tool("tan|tan %", "math", new TextBlock("60")),
@@ -109,13 +115,7 @@ namespace Kitsune
         }
         private void ResetBlockSpace()
         {
-            blockSpace.OnTopLevelAdded += new TopLevelEvent(blockSpace_OnTopLevelAdded);
-            blockSpace.OnTopLevelDeleted += new TopLevelEvent(blockSpace_OnTopLevelDeleted);
-            blockSpace.OnTopLevelMoved += new TopLevelEvent(blockSpace_OnTopLevelMoved);
-            blockSpace.PostSerializationPatchUp();
-            viewFactory.ResetBlockSpace(blockSpace);
             allViews.Clear();
-            blockSpace.NotifyReloaded();
         }
         internal void Clear()
         {
